@@ -1,0 +1,15 @@
+.idea
+.DS_Store
+npm-debug.log
+*-debug.log
+*-error.log
+/.nyc_output
+/coverage
+/coverage-browser
+/dist
+/env
+/lib
+node_modules
+/test/public/WSEventbus.js
+/test/public/WSEventbus.js.map
+/test/public/TestSuiteRunner.js

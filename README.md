@@ -1,2 +1,2 @@
 # eventbus-client
-Provides a websocket enabled eventbus for Node &amp; browser.
+Provides an eventbus with built in websocket client for Node &amp; browser.
