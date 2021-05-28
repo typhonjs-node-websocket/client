@@ -1,7 +1,9 @@
 const s_DEFAULT_AUTO_CONNECT = false;
 const s_DEFAULT_AUTO_RECONNECT = false;
+const s_DEFAULT_BINARY_TYPE = 'blob';
 const s_DEFAULT_HOST = 'localhost';
 const s_DEFAULT_MESSAGE_TIMEOUT = 10000;
+const s_DEFAULT_PATH = '';
 const s_DEFAULT_RECONNECT_INTERVAL = 10000;
 const s_DEFAULT_SERIALIZER = JSON;
 const s_DEFAULT_SSL = false;
@@ -31,6 +33,21 @@ export default function setSocketOptions(opts)
    }
 
    opts.ssl = opts.ssl || s_DEFAULT_SSL;
+
+   if (opts.path !== void 0 && typeof opts.path !== 'string')
+   {
+      throw new TypeError(`'opts.path' is not a string.`);
+   }
+
+   opts.path = typeof opts.path === 'string' ? opts.path : s_DEFAULT_PATH;
+
+   if (opts.binaryType !== void 0 && typeof opts.binaryType !== 'string' &&
+    (opts.binaryType !== 'blob' || opts.binaryType !== 'arraybuffer'))
+   {
+      throw new TypeError(`'opts.binaryType' is not a string or 'blob' / 'arraybuffer'.`);
+   }
+
+   opts.binaryType = typeof opts.path === 'string' ? opts.binaryType : s_DEFAULT_BINARY_TYPE;
 
    opts.serializer = opts.serializer || s_DEFAULT_SERIALIZER;
 
@@ -65,13 +82,6 @@ export default function setSocketOptions(opts)
    opts.messageTimeout = opts.messageTimeout || s_DEFAULT_MESSAGE_TIMEOUT;
    opts.reconnectInterval = opts.reconnectInterval || s_DEFAULT_RECONNECT_INTERVAL;
 
-   if (opts.path !== void 0 && typeof opts.path !== 'string')
-   {
-      throw new TypeError(`'opts.path' is not a string.`);
-   }
-
-   opts.path = typeof opts.path === 'string' ? opts.path : '';
-
    if (opts.protocol !== void 0 && (typeof opts.protocol !== 'string' || !Array.isArray(opts.protocol)))
    {
       throw new TypeError(`'opts.protocol' is not a string or string[].`);
@@ -84,6 +94,7 @@ export default function setSocketOptions(opts)
       port: opts.port,
       ssl: opts.ssl,
       path: opts.path,
+      binaryType: opts.binaryType,
       endpoint: `${opts.ssl ? 'wss://' : 'ws://'}${opts.host}:${opts.port}/${opts.path}`,
       serializer: opts.serializer,
       autoConnect: opts.autoConnect,

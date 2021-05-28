@@ -3,9 +3,9 @@ export function run({ Module, data, chai })
    const { expect } = chai;
    const WSEventbus = Module.default;
 
-   describe(`API Errors (${data.scopedName})`, () =>
+   describe(`API Errors (${data.scopedName}):`, () =>
    {
-      describe('setSocketOptions', () =>
+      describe('setSocketOptions:', () =>
       {
          it(`'opts.port' is not an integer between [0-65535]. (not integer)`, () =>
          {

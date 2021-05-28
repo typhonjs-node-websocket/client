@@ -23,7 +23,7 @@ describe('', () =>
    before(async () =>
    {
       await wsTestServer.start();
-   })
+   });
 
    TestsuiteRunner.run({ Module });
 });

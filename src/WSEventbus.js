@@ -5,11 +5,10 @@ import setSocketOptions from './setSocketOptions.js';
 const s_STR_EVENT_CLOSE = 'socket:close';
 const s_STR_EVENT_ERROR = 'socket:error';
 const s_STR_EVENT_MESSAGE_IN = 'socket:message:in';
-const s_STR_EVENT_MESSAGE_OUT = 'socket:message:out';
 const s_STR_EVENT_SOCKET_OPEN = 'socket:open';
 
 /**
- * Provides a socket connection and forwarding of data via TyphonEvents.
+ * Provides a socket connection and forwarding of data via Eventbus events.
  */
 export default class WSEventbus extends Eventbus
 {
@@ -18,17 +17,12 @@ export default class WSEventbus extends Eventbus
     *
     * @type {SocketOptions}
     */
-   #params;
+   #socketOptions;
 
    /**
     * @type {WebSocket}
     */
    #socket;
-
-   /**
-    * @type {Function}
-    */
-   #socketIntercept;
 
    /**
     * @type {Function|WebSocket}
@@ -51,17 +45,15 @@ export default class WSEventbus extends Eventbus
 
       this.#WebSocketCtor = WebSocketCtor;
 
-      this.#params = setSocketOptions(socketOptions);
+      this.#socketOptions = setSocketOptions(socketOptions);
 
-      this.#socketIntercept = socketOptions.socketIntercept;
+      Object.seal(this);
 
       // Potentially schedule auto connection
-      if (this.#params.autoConnect)
+      if (this.#socketOptions.autoConnect)
       {
          setTimeout(this.connect.bind(this), 0);
       }
-
-      Object.seal(this);
    }
 
    /**
@@ -72,44 +64,44 @@ export default class WSEventbus extends Eventbus
     */
    connect()
    {
-      if (this.#params.protocol !== void 0)
+      if (this.#socketOptions.protocol !== void 0)
       {
-         this.#socket = new this.#WebSocketCtor(this.#params.endpoint, this.#params.protocol);
+         this.#socket = new this.#WebSocketCtor(this.#socketOptions.endpoint, this.#socketOptions.protocol);
       }
       else
       {
-         this.#socket = new this.#WebSocketCtor(this.#params.endpoint);
+         this.#socket = new this.#WebSocketCtor(this.#socketOptions.endpoint);
       }
+
+      this.#socket.binaryType = this.#socketOptions.binaryType;
 
       this.#socket.onclose = () =>
       {
          super.triggerDefer(s_STR_EVENT_CLOSE);
 
-         if (this.#params.autoReconnect)
+         if (this.#socketOptions.autoReconnect)
          {
             // Schedule a reconnection
-            setTimeout(this.connect.bind(this), this.#params.reconnectInterval);
+            setTimeout(this.connect.bind(this), this.#socketOptions.reconnectInterval);
          }
       };
 
       this.#socket.onerror = (error) => { super.triggerDefer(s_STR_EVENT_ERROR, error); };
 
-      this.#socket.onmessage = (message) =>
+      this.#socket.onmessage = (event) =>
       {
-         let object;
+         let data;
 
-         try { object = this.#params.serializer.parse(message.data); }
-         catch (ignore) { return; /* ignore */ }
-
-         // If there is an attached socket intercept function then invoke it.
-         if (this.#socketIntercept)
+         try
          {
-            this.#socketIntercept(s_STR_EVENT_MESSAGE_IN, message.data, object);
+            data = typeof event.data === 'string' ? this.#socketOptions.serializer.parse(event.data) : event.data;
+         }
+         catch (err)
+         {
+            data = event.data;
          }
 
-         // Outside the try-catch block as it must only catch JSON parsing
-         // errors, not errors that may occur inside a `message:in` event handler.
-         super.triggerDefer(s_STR_EVENT_MESSAGE_IN, object);
+         super.triggerDefer(s_STR_EVENT_MESSAGE_IN, data);
       };
 
       this.#socket.onopen = () => { super.triggerDefer(s_STR_EVENT_SOCKET_OPEN); };
@@ -136,18 +128,18 @@ export default class WSEventbus extends Eventbus
       return this;
    }
 
+   get socketOptions() { return this.#socketOptions; }
+
    /**
     * Sends an object over the socket.
     *
-    * @param {object}  object - The object to send.
+    * @param {object|string|Blob|ArrayBuffer|ArrayBufferView}  message - The message to send.
     *
     * @returns {WSEventbus} This WSEventbus instance.
     */
-   send(object)
+   send(message)
    {
-      const message = this.#params.serializer.stringify(object);
-
-      this.#socket.send(message);
+      this.#socket.send(message.constructor === Object ? this.#socketOptions.serializer.stringify(message) : message);
 
       return this;
    }
