@@ -12,4 +12,4 @@ npm-debug.log
 node_modules
 /test/public/WSEventbus.js
 /test/public/WSEventbus.js.map
-/test/public/TestSuiteRunner.js
+/test/public/TestsuiteRunner.js
