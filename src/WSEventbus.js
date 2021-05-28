@@ -137,16 +137,6 @@ export default class WSEventbus extends Eventbus
    }
 
    /**
-    * Returns any associated socket intercept function.
-    *
-    * @returns {Function} Any set socket intercept function.
-    */
-   getSocketIntercept()
-   {
-      return this.#socketIntercept;
-   }
-
-   /**
     * Sends an object over the socket.
     *
     * @param {object}  object - The object to send.
@@ -157,29 +147,8 @@ export default class WSEventbus extends Eventbus
    {
       const message = this.#params.serializer.stringify(object);
 
-      // If there is an attached socket intercept function then invoke it.
-      if (this.#socketIntercept)
-      {
-         this.#socketIntercept(s_STR_EVENT_MESSAGE_OUT, message, object);
-      }
-
       this.#socket.send(message);
 
       return this;
-   }
-
-   /**
-    * Sets the socket intercept function which is invoked when a message is sent or received.
-    *
-    * @param {Function} interceptFunction - function that is invoked when a message is sent or received.
-    */
-   setSocketIntercept(interceptFunction)
-   {
-      if (typeof interceptFunction !== 'function')
-      {
-         throw new TypeError(`'interceptFunction' is not a function.`);
-      }
-
-      this.#socketIntercept = interceptFunction;
    }
 }

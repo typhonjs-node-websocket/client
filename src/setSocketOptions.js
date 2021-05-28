@@ -57,11 +57,6 @@ export default function setSocketOptions(opts)
    opts.messageTimeout = opts.messageTimeout || s_DEFAULT_MESSAGE_TIMEOUT;
    opts.reconnectInterval = opts.reconnectInterval || s_DEFAULT_RECONNECT_INTERVAL;
 
-   if (opts.socketIntercept !== void 0 && typeof opts.socketIntercept !== 'function')
-   {
-      throw new TypeError(`'opts.socketIntercept' is not a function.`);
-   }
-
    if (opts.path !== void 0 && typeof opts.path !== 'string')
    {
       throw new TypeError(`'opts.path' is not a string.`);
@@ -86,7 +81,6 @@ export default function setSocketOptions(opts)
       autoReconnect: opts.autoReconnect,
       messageTimeout: opts.messageTimeout,
       reconnectInterval: opts.reconnectInterval,
-      protocol: opts.protocol,
-      socketIntercept: opts.socketIntercept
+      protocol: opts.protocol
    };
 }

@@ -71,12 +71,6 @@ export function run({ Module, data, chai })
              `'opts.reconnectInterval' is not an integer or < 0.`);
          });
 
-         it(`'opts.socketIntercept' is not a function.`, () =>
-         {
-            expect(() => new WSEventbus({ host: '', socketIntercept: false })).to.throw(TypeError,
-             `'opts.socketIntercept' is not a function.`);
-         });
-
          it(`'opts.path' is not a string.`, () =>
          {
             expect(() => new WSEventbus({ host: '', path: false })).to.throw(TypeError, `'opts.path' is not a string.`);
