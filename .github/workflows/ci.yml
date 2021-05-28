@@ -34,8 +34,8 @@ jobs:
         run: npm install esm
 
       # Note: `-- --require esm` only adds `esm` to mocha in the GH Action.
-#      - name: Run the tests
-#        run: npm run test-node -- --require esm
+      - name: Run the tests
+        run: npm run test-node -- --require esm
 
   # builds on versions of Node that don't require --experimental-modules nor `esm` to run ESM mocha tests.
   build-node:
@@ -59,8 +59,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-#      - name: Run Tests
-#        run: npm run test-node
-#
-#      - name: Upload coverage to Codecov
-#        uses: codecov/codecov-action@v1
+      - name: Run Tests
+        run: npm run test-node
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
