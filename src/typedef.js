@@ -21,6 +21,8 @@
  *
  * @property {number}      [reconnectInterval=10000] - Indicates socket reconnect interval.
  *
+ * @property {boolean}     [trigger=true] - Trigger events on the eventbus for socket callbacks.
+ *
  * @property {string|string[]}   [protocol] - Defines the websocket protocol(s).
  */
 
@@ -47,5 +49,7 @@
  *
  * @property {number}      reconnectInterval - Indicates socket reconnect interval.
  *
- * @property {string|string[]}   [protocol] - Defines the websocket protocol(s)
+ * @property {boolean}     trigger - Trigger events on the eventbus for socket callbacks.
+ *
+ * @property {string|string[]|void}  protocol - Defines the websocket protocol(s)
  */

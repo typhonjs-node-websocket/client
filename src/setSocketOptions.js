@@ -7,6 +7,7 @@ const s_DEFAULT_PATH = '';
 const s_DEFAULT_RECONNECT_INTERVAL = 10000;
 const s_DEFAULT_SERIALIZER = JSON;
 const s_DEFAULT_SSL = false;
+const s_DEFAULT_TRIGGER = true;
 
 /**
  * @param {NewSocketOptions}  opts - Defines an object hash of required and optional parameters.
@@ -82,10 +83,18 @@ export default function setSocketOptions(opts)
       throw new TypeError(`'opts.reconnectInterval' is not an integer or < 0.`);
    }
 
+
    opts.autoConnect = opts.autoConnect || s_DEFAULT_AUTO_CONNECT;
    opts.autoReconnect = opts.autoReconnect || s_DEFAULT_AUTO_RECONNECT;
    opts.messageTimeout = opts.messageTimeout || s_DEFAULT_MESSAGE_TIMEOUT;
    opts.reconnectInterval = opts.reconnectInterval || s_DEFAULT_RECONNECT_INTERVAL;
+
+   if (opts.trigger !== void 0 && typeof opts.trigger !== 'boolean')
+   {
+      throw new TypeError(`'opts.trigger' is not a boolean.`);
+   }
+
+   opts.trigger = typeof opts.trigger === 'boolean' ? opts.trigger : s_DEFAULT_TRIGGER;
 
    if (opts.protocol !== void 0 && typeof opts.protocol !== 'string' && !Array.isArray(opts.protocol))
    {
@@ -105,6 +114,7 @@ export default function setSocketOptions(opts)
       autoReconnect: opts.autoReconnect,
       messageTimeout: opts.messageTimeout,
       reconnectInterval: opts.reconnectInterval,
-      protocol: opts.protocol
+      protocol: opts.protocol,
+      trigger: opts.trigger
    };
 }

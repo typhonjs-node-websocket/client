@@ -110,7 +110,9 @@ export default class WSEventbus extends Eventbus
       {
          this.#connected = false;
 
-         super.triggerDefer(s_STR_EVENT_CLOSE);
+         this.onSocketClose();
+
+         if (this.#socketOptions.trigger) { super.triggerDefer(s_STR_EVENT_CLOSE); }
 
          if (this.#socketOptions.autoReconnect)
          {
@@ -119,7 +121,12 @@ export default class WSEventbus extends Eventbus
          }
       };
 
-      this.#socket.onerror = (error) => { super.triggerDefer(s_STR_EVENT_ERROR, error); };
+      this.#socket.onerror = (error) =>
+      {
+         this.onSocketError(error);
+
+         if (this.#socketOptions.trigger) { super.triggerDefer(s_STR_EVENT_ERROR, error); }
+      };
 
       this.#socket.onmessage = (event) =>
       {
@@ -134,14 +141,18 @@ export default class WSEventbus extends Eventbus
             data = event.data;
          }
 
-         super.triggerDefer(s_STR_EVENT_MESSAGE_IN, data);
+         this.onSocketMessage(data);
+
+         if (this.#socketOptions.trigger) { super.triggerDefer(s_STR_EVENT_MESSAGE_IN, data); }
       };
 
       this.#socket.onopen = () =>
       {
          this.#connected = true;
 
-         super.triggerDefer(s_STR_EVENT_SOCKET_OPEN);
+         this.onSocketOpen();
+
+         if (this.#socketOptions.trigger) { super.triggerDefer(s_STR_EVENT_SOCKET_OPEN); }
 
          this.#queue.process();
       };
@@ -193,6 +204,20 @@ export default class WSEventbus extends Eventbus
    get socketOptions() { return this.#socketOptions; }
 
    get url() { return this.#socket ? this.#socket.url : ''; }
+
+   onSocketClose() {}
+
+   /**
+    * @param {object}   error - The error event.
+    */
+   onSocketError(error) {}
+
+   /**
+    * @param {*}  data - The data received.
+    */
+   onSocketMessage(data) {}
+
+   onSocketOpen() {}
 
    /**
     * Sends an object over the socket.

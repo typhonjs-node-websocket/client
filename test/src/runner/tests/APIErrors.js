@@ -111,6 +111,12 @@ export function run({ Module, data, chai })
             expect(() => new WSEventbus({ port: 0, protocol: false })).to.throw(TypeError,
              `'opts.protocol' is not a string or string[].`);
          });
+
+         it(`'opts.trigger' is not a boolean.`, () =>
+         {
+            expect(() => new WSEventbus({ port: 0, trigger: 0 })).to.throw(TypeError,
+             `'opts.trigger' is not a boolean.`);
+         });
       });
    });
 }

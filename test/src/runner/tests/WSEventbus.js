@@ -1,7 +1,9 @@
-export function run({ Module, data, chai })
+export function run({ Module, data, env, chai })
 {
    const { assert } = chai;
    const WSEventbus = Module.default;
+
+   const options = (data = {}) => Object.assign({ port: 8001 }, data);
 
    describe(`WSEventbus (${data.scopedName}):`, () =>
    {
@@ -145,8 +147,6 @@ export function run({ Module, data, chai })
       {
          let socket;
 
-         const options = (data = {}) => Object.assign({ port: 8001 }, data);
-
          afterEach(() =>
          {
             socket.disconnect();
@@ -172,6 +172,30 @@ export function run({ Module, data, chai })
                   done();
                });
             });
+         });
+
+         it('path', (done) =>
+         {
+            socket = new WSEventbus(options({ path: 'ws' }));
+            socket.connect();
+            socket.on('socket:open', () => { done(); });
+         });
+
+         it('protocol', (done) =>
+         {
+            socket = new WSEventbus(options({ protocol: 'foo' }));
+            socket.connect();
+            socket.on('socket:open', () => { done(); });
+         });
+      });
+
+      describe(`methods:`, () =>
+      {
+         let socket;
+
+         afterEach(() =>
+         {
+            socket.disconnect();
          });
 
          it('get bufferedAmount', (done) =>
@@ -200,6 +224,12 @@ export function run({ Module, data, chai })
                assert.isTrue(socket.connected);
                done();
             });
+         });
+
+         it('get endpoint (ssl)', () =>
+         {
+            socket = new WSEventbus(options({ ssl: true }));
+            assert.strictEqual(socket.endpoint, 'wss://localhost:8001/');
          });
 
          it('get extensions', (done) =>
@@ -298,24 +328,45 @@ export function run({ Module, data, chai })
             });
          });
 
-         it('path', (done) =>
+         if (env.isNode)
          {
-            socket = new WSEventbus(options({ path: 'ws' }));
-            socket.connect();
-            socket.on('socket:open', () => { done(); });
-         });
+            it('wsImplOptions (empty)', (done) =>
+            {
+               socket = new WSEventbus(options({ autoConnect: true }), {});
+               socket.on('socket:open', () => done());
+            });
+         }
+      });
 
-         it('protocol', (done) =>
+      describe(`Custom class:`, () =>
+      {
+         it('direct callbacks', (done) =>
          {
-            socket = new WSEventbus(options({ protocol: 'foo' }));
-            socket.connect();
-            socket.on('socket:open', () => { done(); });
-         });
+            class CustomWSEventbus extends WSEventbus
+            {
+               constructor(socketOptions) { super(socketOptions); }
 
-         it('wsImplOptions (empty)', (done) =>
-         {
-            socket = new WSEventbus(options({ autoConnect: true }), {});
-            socket.on('socket:open', () => done());
+               onSocketClose() { done(); }
+
+               onSocketOpen() { this.send({ msg: 'echo', id: 5 }) }
+
+               onSocketMessage(data)
+               {
+                  assert.isObject(data);
+                  assert.strictEqual(data.msg, 'echo');
+                  assert.strictEqual(data.id, 5);
+
+                  this.disconnect();
+               }
+            }
+
+            const socket = new CustomWSEventbus(options({ trigger: false }));
+
+            socket.on('socket:close', () => assert.ok(false));
+            socket.on('socket:open', () => assert.ok(false));
+            socket.on('socket:message:in', () => assert.ok(false));
+
+            socket.connect();
          });
       });
    });
