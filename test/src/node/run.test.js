@@ -5,8 +5,6 @@ import * as Module      from '../../../src/node/WSEventbus.js';
 import WSTestServer     from '../common/WSTestServer.js';
 import TestsuiteRunner  from '../runner/TestsuiteRunner.js';
 
-import log              from 'why-is-node-running';
-
 fs.ensureDirSync('./.nyc_output');
 fs.emptyDirSync('./.nyc_output');
 
@@ -20,10 +18,6 @@ describe('', () =>
    after(async () =>
    {
       await wsTestServer.shutdown();
-
-      // setTimeout(function () {
-      //    log() // logs out active handles that are keeping node running
-      // }, 1000)
    });
 
    before(async () =>
