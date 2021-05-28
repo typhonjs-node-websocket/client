@@ -41,13 +41,18 @@ export default function setSocketOptions(opts)
 
    opts.path = typeof opts.path === 'string' ? opts.path : s_DEFAULT_PATH;
 
-   if (opts.binaryType !== void 0 && typeof opts.binaryType !== 'string' &&
-    (opts.binaryType !== 'blob' || opts.binaryType !== 'arraybuffer'))
+   if (opts.binaryType !== void 0 && typeof opts.binaryType !== 'string')
    {
-      throw new TypeError(`'opts.binaryType' is not a string or 'blob' / 'arraybuffer'.`);
+      throw new TypeError(`'opts.binaryType' must be 'blob' or 'arraybuffer'.`);
    }
 
-   opts.binaryType = typeof opts.path === 'string' ? opts.binaryType : s_DEFAULT_BINARY_TYPE;
+   if (opts.binaryType !== void 0 && opts.binaryType !== 'blob' && opts.binaryType !== 'arraybuffer')
+   {
+      throw new TypeError(`'opts.binaryType' must be 'blob' or 'arraybuffer'.`);
+   }
+
+   opts.binaryType = typeof opts.binaryType === 'string' ? opts.binaryType : s_DEFAULT_BINARY_TYPE;
+
 
    opts.serializer = opts.serializer || s_DEFAULT_SERIALIZER;
 
@@ -82,12 +87,12 @@ export default function setSocketOptions(opts)
    opts.messageTimeout = opts.messageTimeout || s_DEFAULT_MESSAGE_TIMEOUT;
    opts.reconnectInterval = opts.reconnectInterval || s_DEFAULT_RECONNECT_INTERVAL;
 
-   if (opts.protocol !== void 0 && (typeof opts.protocol !== 'string' || !Array.isArray(opts.protocol)))
+   if (opts.protocol !== void 0 && typeof opts.protocol !== 'string' && !Array.isArray(opts.protocol))
    {
       throw new TypeError(`'opts.protocol' is not a string or string[].`);
    }
 
-   opts.protocol = typeof opts.protocol === 'string' ? opts.protocol : void 0;
+   opts.protocol = opts.protocol ? opts.protocol : void 0;
 
    return {
       host: opts.host,
@@ -95,7 +100,6 @@ export default function setSocketOptions(opts)
       ssl: opts.ssl,
       path: opts.path,
       binaryType: opts.binaryType,
-      endpoint: `${opts.ssl ? 'wss://' : 'ws://'}${opts.host}:${opts.port}/${opts.path}`,
       serializer: opts.serializer,
       autoConnect: opts.autoConnect,
       autoReconnect: opts.autoReconnect,

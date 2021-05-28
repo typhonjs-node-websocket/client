@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import WebSocket  from 'ws';
 
 export default class WSTestServer
 {
@@ -21,8 +21,14 @@ export default class WSTestServer
             {
                switch (data.msg)
                {
+                  case 'close':
+                     ws.close();
+                     break;
                   case 'echo':
                      ws.send(JSON.stringify({ msg: 'echo', id: data.id }));
+                     break;
+                  case 'not-json':
+                     ws.send('Not JSON');
                      break;
                }
             }
@@ -64,9 +70,9 @@ export default class WSTestServer
    {
       return new Promise((resolve, reject) =>
       {
-         this._wss = new WebSocket.Server({ host, port });
+         this._wss = new WebSocket.Server({ host, port, handleProtocols: () => 'foo' });
 
-         this._wss.on('error', () => reject());
+         this._wss.once('error', () => reject());
 
          this._wss.on('listening', () =>
          {

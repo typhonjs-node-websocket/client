@@ -35,6 +35,18 @@ export function run({ Module, data, chai })
             expect(() => new WSEventbus({ port: 0,  ssl: 0 })).to.throw(TypeError, `'opts.ssl' is not a boolean.`);
          });
 
+         it(`'opts.binaryType' must be 'blob' or 'arraybuffer'. (not string)`, () =>
+         {
+            expect(() => new WSEventbus({ port: 0,  binaryType: false })).to.throw(TypeError,
+             `'opts.binaryType' must be 'blob' or 'arraybuffer'.`);
+         });
+
+         it(`'opts.binaryType' must be 'blob' or 'arraybuffer'. (not 'blob' / 'arraybuffer')`, () =>
+         {
+            expect(() => new WSEventbus({ port: 0,  binaryType: 'bad' })).to.throw(TypeError,
+             `'opts.binaryType' must be 'blob' or 'arraybuffer'.`);
+         });
+
          it(`'opts.serializer' does not conform to the JSON API. (not object)`, () =>
          {
             expect(() => new WSEventbus({ port: 0,  serializer: 'bad' })).to.throw(TypeError,

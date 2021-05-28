@@ -1,5 +1,6 @@
 import Eventbus         from '@typhonjs-plugin/eventbus';
 
+import Queue            from './Queue.js';
 import setSocketOptions from './setSocketOptions.js';
 
 const s_STR_EVENT_CLOSE = 'socket:close';
@@ -12,6 +13,20 @@ const s_STR_EVENT_SOCKET_OPEN = 'socket:open';
  */
 export default class WSEventbus extends Eventbus
 {
+   /**
+    * Stores the connection status. The default message queue consumer implementation checks for 'connected' status.
+    *
+    * @type {boolean}
+    */
+   #connected = false;
+
+   /**
+    * Provides a default single consumer message queue.
+    *
+    * @type {Queue}
+    */
+   #queue;
+
    /**
     * The socket options parameters.
     *
@@ -38,8 +53,11 @@ export default class WSEventbus extends Eventbus
     *
     * @param {object}               socketOptions - The options hash generated from `setSocketOptions` defining the
     *                                               socket configuration.
+    *
+    * @param {object}               [wsImplOptions] - Some WebSocket implementations may take an implementation specific
+    *                                                 options object as a third parameter.
     */
-   constructor(WebSocketCtor, socketOptions = {})
+   constructor(WebSocketCtor, socketOptions = {}, wsImplOptions = void 0)
    {
       super();
 
@@ -47,7 +65,19 @@ export default class WSEventbus extends Eventbus
 
       this.#socketOptions = setSocketOptions(socketOptions);
 
-      Object.seal(this);
+      this.#queue = new Queue((message) =>
+      {
+         if (this.#connected) { this.send(message); return true; }
+         else { return false; }
+      });
+
+      /**
+       * Some WebSocket implementations may take an implementation specific options object as a third parameter.
+       *
+       * @type {Object}
+       * @protected
+       */
+      this._wsImplOptions = wsImplOptions;
 
       // Potentially schedule auto connection
       if (this.#socketOptions.autoConnect)
@@ -64,19 +94,22 @@ export default class WSEventbus extends Eventbus
     */
    connect()
    {
-      if (this.#socketOptions.protocol !== void 0)
+      if (this._wsImplOptions !== void 0)
       {
-         this.#socket = new this.#WebSocketCtor(this.#socketOptions.endpoint, this.#socketOptions.protocol);
+         this.#socket = new this.#WebSocketCtor(this.endpoint, this.#socketOptions.protocol,
+          this._wsImplOptions);
       }
       else
       {
-         this.#socket = new this.#WebSocketCtor(this.#socketOptions.endpoint);
+         this.#socket = new this.#WebSocketCtor(this.endpoint, this.#socketOptions.protocol);
       }
 
       this.#socket.binaryType = this.#socketOptions.binaryType;
 
       this.#socket.onclose = () =>
       {
+         this.#connected = false;
+
          super.triggerDefer(s_STR_EVENT_CLOSE);
 
          if (this.#socketOptions.autoReconnect)
@@ -104,7 +137,14 @@ export default class WSEventbus extends Eventbus
          super.triggerDefer(s_STR_EVENT_MESSAGE_IN, data);
       };
 
-      this.#socket.onopen = () => { super.triggerDefer(s_STR_EVENT_SOCKET_OPEN); };
+      this.#socket.onopen = () =>
+      {
+         this.#connected = true;
+
+         super.triggerDefer(s_STR_EVENT_SOCKET_OPEN);
+
+         this.#queue.process();
+      };
 
       return this;
    }
@@ -123,23 +163,70 @@ export default class WSEventbus extends Eventbus
     */
    disconnect(code, reason)
    {
-      this.#socket.close(code, reason);
+      if (this.#socket) { this.#socket.close(code, reason); }
+
+      this.#queue.empty();
+
+      this.#connected = false;
 
       return this;
    }
 
+   get bufferedAmount() { return this.#socket ? this.#socket.bufferedAmount : 0; }
+
+   get connected() { return this.#connected; }
+
+   get endpoint()
+   {
+      const opts = this.#socketOptions;
+      return `${opts.ssl ? 'wss://' : 'ws://'}${opts.host}:${opts.port}/${opts.path}`;
+   }
+
+   get extensions() { return this.#socket ? this.#socket.extensions : ''; }
+
+   get protocol() { return this.#socket ? this.#socket.protocol : ''; }
+
+   get queue() { return this.#queue; }
+
+   get readyState() { return this.#socket ? this.#socket.readyState : 3; }
+
    get socketOptions() { return this.#socketOptions; }
+
+   get url() { return this.#socket ? this.#socket.url : ''; }
 
    /**
     * Sends an object over the socket.
     *
-    * @param {object|string|Blob|ArrayBuffer|ArrayBufferView}  message - The message to send.
+    * @param {object|string|Blob|ArrayBuffer|ArrayBufferView}  data - The data to send.
     *
     * @returns {WSEventbus} This WSEventbus instance.
     */
-   send(message)
+   send(data)
    {
-      this.#socket.send(message.constructor === Object ? this.#socketOptions.serializer.stringify(message) : message);
+      if (this.#socket)
+      {
+         this.#socket.send(data.constructor === Object ? this.#socketOptions.serializer.stringify(data) : data);
+      }
+
+      return this;
+   }
+
+   /**
+    * Sends an object over the socket.
+    *
+    * @param {Iterable<object|string|Blob|ArrayBuffer|ArrayBufferView>}  data - An array of data to send.
+    *
+    * @returns {WSEventbus} This WSEventbus instance.
+    */
+   sendAll(data)
+   {
+      if (this.#socket)
+      {
+         for (const entry of data)
+         {
+            this.#socket.send(entry.constructor === Object ? this.#socketOptions.serializer.stringify(entry) : entry);
+         }
+      }
 
       return this;
    }

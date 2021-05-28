@@ -37,8 +37,6 @@
  *
  * @property {BinaryType}  binaryType - Defines the socket binary type.
  *
- * @property {string}      endpoint - The constructed websocket endpoint.
- *
  * @property {object}      serializer - An instance of an object which conforms to JSON for object serialization.
  *
  * @property {boolean}     autoConnect - Indicates if socket should connect on construction.
