@@ -15,13 +15,9 @@
  *
  * @property {number}   [reconnectInterval=10000] - Indicates socket reconnect interval.
  *
- * @property {string}   [protocol] - Defines the websocket protocol.
+ * @property {string|string[]}   [protocol] - Defines the websocket protocol(s).
  *
  * @property {string}   [path='websocket'] - Defines the websocket path.
- *
- * @property {Function} [socketIntercept] - Provides an intercept function for in / out messages. When invoked three
- *                                          parameters are passed: (string) message type, (*) message data,
- *                                          (object) parsed JSON object.
  */
 
 /**
@@ -45,9 +41,5 @@
  *
  * @property {number}   reconnectInterval - Indicates socket reconnect interval.
  *
- * @property {string}   [protocol] - Defines the websocket protocol.
- *
- * @property {Function} [socketIntercept] - Provides an intercept function for in / out messages. When invoked three
- *                                          parameters are passed: (string) message type, (*) message data,
- *                                          (object) parsed JSON object.
+ * @property {string|string[]}   [protocol] - Defines the websocket protocol(s)
  */

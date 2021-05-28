@@ -64,9 +64,9 @@ export default function setSocketOptions(opts)
 
    opts.path = typeof opts.path === 'string' ? opts.path : '';
 
-   if (opts.protocol !== void 0 && typeof opts.protocol !== 'string')
+   if (opts.protocol !== void 0 && (typeof opts.protocol !== 'string' || !Array.isArray(opts.protocol)))
    {
-      throw new TypeError(`'opts.protocol' is not a string.`);
+      throw new TypeError(`'opts.protocol' is not a string or string[].`);
    }
 
    opts.protocol = typeof opts.protocol === 'string' ? opts.protocol : void 0;

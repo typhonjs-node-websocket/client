@@ -76,10 +76,10 @@ export function run({ Module, data, chai })
             expect(() => new WSEventbus({ host: '', path: false })).to.throw(TypeError, `'opts.path' is not a string.`);
          });
 
-         it(`'opts.protocol' is not a string.`, () =>
+         it(`'opts.protocol' is not a string or string[].`, () =>
          {
             expect(() => new WSEventbus({ host: '', protocol: false })).to.throw(TypeError,
-             `'opts.protocol' is not a string.`);
+             `'opts.protocol' is not a string or string[].`);
          });
       });
    });
