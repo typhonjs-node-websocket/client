@@ -14,7 +14,7 @@ export function run({ Module, data, chai })
 
       beforeEach(() =>
       {
-         socket = new WSEventbus({ host: 'localhost:8001', autoReconnect: false });
+         socket = new WSEventbus({ port: 8001 });
       })
 
       it('socket:open', (done) =>

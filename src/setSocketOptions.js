@@ -1,5 +1,6 @@
 const s_DEFAULT_AUTO_CONNECT = false;
 const s_DEFAULT_AUTO_RECONNECT = false;
+const s_DEFAULT_HOST = 'localhost';
 const s_DEFAULT_MESSAGE_TIMEOUT = 10000;
 const s_DEFAULT_RECONNECT_INTERVAL = 10000;
 const s_DEFAULT_SERIALIZER = JSON;
@@ -12,10 +13,17 @@ const s_DEFAULT_SSL = false;
  */
 export default function setSocketOptions(opts)
 {
-   if (typeof opts.host !== 'string')
+   if (!Number.isInteger(opts.port) || (opts.port < 0 || opts.port > 65535))
+   {
+      throw new TypeError(`'opts.port' is not an integer between [0-65535].`);
+   }
+
+   if (opts.host !== void 0 && typeof opts.host !== 'string')
    {
       throw new TypeError(`'opts.host' is not a string.`);
    }
+
+   opts.host = opts.host || s_DEFAULT_HOST;
 
    if (opts.ssl !== void 0 && typeof opts.ssl !== 'boolean')
    {
@@ -73,9 +81,10 @@ export default function setSocketOptions(opts)
 
    return {
       host: opts.host,
+      port: opts.port,
       ssl: opts.ssl,
       path: opts.path,
-      endpoint: `${opts.ssl ? 'wss://' : 'ws://'}${opts.host}/${opts.path}`,
+      endpoint: `${opts.ssl ? 'wss://' : 'ws://'}${opts.host}:${opts.port}/${opts.path}`,
       serializer: opts.serializer,
       autoConnect: opts.autoConnect,
       autoReconnect: opts.autoReconnect,

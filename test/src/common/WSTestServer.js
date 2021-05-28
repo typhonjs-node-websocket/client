@@ -55,11 +55,11 @@ export default class WSTestServer
       });
    }
 
-   async start()
+   async start({ host = 'localhost', port = 8001 } = {})
    {
       return new Promise((resolve, reject) =>
       {
-         this._wss = new WebSocket.Server({ host: 'localhost', port: 8001 });
+         this._wss = new WebSocket.Server({ host, port });
 
          this._wss.on('error', () => reject());
 

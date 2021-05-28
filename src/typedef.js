@@ -1,29 +1,33 @@
 /**
  * @typedef {object} NewSocketOptions - Defines the parameters to construct a new WSEventbus & WebSocket.
  *
- * @property {string}   host - host name / port.
+ * @property {number}   port - port [0-65535].
+ *
+ * @property {string}   [host=localhost] - host name / IP address.
  *
  * @property {boolean}  [ssl=false] - Indicates if an SSL connection is requested.
  *
+ * @property {string}   [path] - Defines the websocket path.
+ *
  * @property {object}   [serializer=JSON] - An instance of an object which conforms to JSON for serialization.
  *
- * @property {boolean}  [autoConnect=true] - Indicates if socket should connect on construction.
+ * @property {boolean}  [autoConnect=false] - Indicates if socket should connect on construction.
  *
- * @property {boolean}  [autoReconnect=true] - Indicates if socket should reconnect on socket closed.
+ * @property {boolean}  [autoReconnect=false] - Indicates if socket should reconnect on socket closed.
  *
  * @property {number}   [messageTimeout=10000] - Indicates a timeout for message responses.
  *
  * @property {number}   [reconnectInterval=10000] - Indicates socket reconnect interval.
  *
  * @property {string|string[]}   [protocol] - Defines the websocket protocol(s).
- *
- * @property {string}   [path='websocket'] - Defines the websocket path.
  */
 
 /**
  * @typedef {object} SocketOptions - Defines the parsed options for WSEventbus.
  *
- * @property {string}   host - host name / port.
+ * @property {number}   port - port [0-65535].
+ *
+ * @property {string}   host - host name / IP address.
  *
  * @property {boolean}  ssl - Indicates if an SSL connection is requested.
  *
