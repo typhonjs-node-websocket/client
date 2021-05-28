@@ -1,6 +1,6 @@
-import Eventbus               from '@typhonjs-plugin/eventbus';
+import Eventbus         from '@typhonjs-plugin/eventbus';
 
-import setSocketOptions       from './setSocketOptions.js';
+import setSocketOptions from './setSocketOptions.js';
 
 const s_STR_EVENT_CLOSE = 'socket:close';
 const s_STR_EVENT_ERROR = 'socket:error';
@@ -60,6 +60,8 @@ export default class WSEventbus extends Eventbus
       {
          setTimeout(this.connect.bind(this), 0);
       }
+
+      Object.seal(this);
    }
 
    /**
@@ -70,7 +72,7 @@ export default class WSEventbus extends Eventbus
     */
    connect()
    {
-      if (typeof this.#params.protocol !== 'undefined')
+      if (this.#params.protocol !== void 0)
       {
          this.#socket = new this.#WebSocketCtor(this.#params.endpoint, this.#params.protocol);
       }
@@ -147,7 +149,7 @@ export default class WSEventbus extends Eventbus
    /**
     * Sends an object over the socket.
     *
-    * @param {*}  object - The object to send.
+    * @param {object}  object - The object to send.
     *
     * @returns {WSEventbus} This WSEventbus instance.
     */

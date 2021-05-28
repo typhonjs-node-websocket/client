@@ -8,5 +8,6 @@ export default class WSEventbus extends WSSEventbus
    constructor(socketOptions)
    {
       super(WebSocket, socketOptions); // eslint-disable-line no-undef
+      Object.seal(this);
    }
 }

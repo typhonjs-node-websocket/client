@@ -10,5 +10,6 @@ export default class WSEventbus extends WSSEventbus
    constructor(socketOptions)
    {
       super(WebSocket, socketOptions);
+      Object.seal(this);
    }
 }
