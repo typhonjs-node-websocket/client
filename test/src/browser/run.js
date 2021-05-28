@@ -1,9 +1,6 @@
-import TestRunner from '@typhonjs-utils/build-test-browser';
+import TestRunner    from '@typhonjs-utils/build-test-browser';
 
-// Empty / copy test fixtures to web server root if necessary (import fs-extra above)
-// fs.ensureDirSync('./test/public/fixture');
-// fs.emptyDirSync('./test/public/fixture');
-// fs.copySync('./test/fixture', './test/public/fixture');
+import WSTestServer  from '../common/WSTestServer.js';
 
 /**
  * Provides the main async execution function
@@ -12,10 +9,15 @@ import TestRunner from '@typhonjs-utils/build-test-browser';
  */
 async function main()
 {
+   const wsTestServer = new WSTestServer();
+   await wsTestServer.start();
+
    await TestRunner.runServerAndTestSuite({
       reportDir: './coverage-browser',
-      // keepAlive: true   // Uncomment to keep HTTP server alive / useful for testing other browsers.
+      keepAlive: true   // Uncomment to keep HTTP server alive / useful for testing other browsers.
    });
+
+   await wsTestServer.shutdown();
 }
 
 main().catch((err) =>

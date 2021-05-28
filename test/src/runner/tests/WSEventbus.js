@@ -1,44 +1,42 @@
 export function run({ Module, data, chai })
 {
    // const { assert } = chai;
-   // const DemoModule = Module.default;
-   // const demoFunction = Module.demoFunction;
-   //
-   // describe(`DemoModule (${data.scopedName})`, () =>
-   // {
-   //    let demoModule;
-   //
-   //    beforeEach(() =>
-   //    {
-   //       demoModule = new DemoModule();
-   //    });
-   //
-   //    for (const addTwoData of data.addTwo)
-   //    {
-   //       it(`addTwo - ${addTwoData.a} + ${addTwoData.b}`, () =>
-   //       {
-   //          const result = demoModule.addTwo(addTwoData.a, addTwoData.b);
-   //
-   //          assert.strictEqual(result, addTwoData.result);
-   //       });
-   //
-   //       it(`addTwoAsync - ${addTwoData.a} + ${addTwoData.b}`, async () =>
-   //       {
-   //          const result = await demoModule.addTwoAsync(addTwoData.a, addTwoData.b);
-   //
-   //          assert.strictEqual(result, addTwoData.result);
-   //       });
-   //    }
-   // });
-   //
-   // describe(`demoFunction`, () =>
-   // {
-   //    it(`result is true`, () =>
-   //    {
-   //       const result = demoFunction();
-   //
-   //       assert.isBoolean(result);
-   //       assert.strictEqual(result, data.demoFunctionResult);
-   //    });
-   // });
+   const WSEventbus = Module.default;
+
+   describe(`WSEventbus (${data.scopedName})`, () =>
+   {
+      let socket;
+
+      afterEach(() =>
+      {
+         socket.disconnect();
+      })
+
+      beforeEach(() =>
+      {
+         socket = new WSEventbus({ host: 'localhost:8001', autoReconnect: false });
+      })
+
+      it('socket:open', (done) =>
+      {
+         socket.connect();
+
+         socket.on('socket:open', () =>
+         {
+            console.log('socket:open');
+            done();
+            // socket.send({ msg: 'connect' });
+         });
+      });
+
+      // socket.on('socket:close', () =>
+      // {
+      //    console.log('socket:close');
+      // });
+      //
+      // socket.on('socket:message:in', (message) =>
+      // {
+      //    console.log(`socket:message:in - ${JSON.stringify(message)}`);
+      // });
+   });
 }
