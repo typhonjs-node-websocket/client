@@ -41,9 +41,9 @@ export default () =>
 
       // This bundle is the test suite
       {
-         input: ['test/src/runner/TestSuiteRunner.js'],
+         input: ['test/src/runner/TestsuiteRunner.js'],
          output: [{
-            file: `${s_TEST_BROWSER_PATH}/TestSuiteRunner.js`,
+            file: `${s_TEST_BROWSER_PATH}/TestsuiteRunner.js`,
             format: 'es',
             preferConst: true
          }],
