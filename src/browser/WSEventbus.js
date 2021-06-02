@@ -3,14 +3,10 @@ import WSSEventbus from '../WSEventbus.js';
 export default class WSEventbus extends WSSEventbus
 {
    /**
-    * @param {NewSocketOptions}  socketOptions - Options to create WebSocket.
-    *
-    * @param {object}            [wsImplOptions] - Some WebSocket implementations may take an implementation specific
-    *                                              options object as a third parameter.
+    * @param {NewSocketOptionsURL|NewSocketOptionsParts}  socketOptions - Options to create WebSocket.
     */
-   constructor(socketOptions, wsImplOptions = void 0)
+   constructor(socketOptions)
    {
-      super(WebSocket, socketOptions, wsImplOptions); // eslint-disable-line no-undef
-      Object.seal(this);
+      super(WebSocket, socketOptions); // eslint-disable-line no-undef
    }
 }

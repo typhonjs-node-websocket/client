@@ -3,20 +3,33 @@ const s_DEFAULT_AUTO_RECONNECT = false;
 const s_DEFAULT_BINARY_TYPE = 'blob';
 const s_DEFAULT_HOST = 'localhost';
 const s_DEFAULT_MESSAGE_TIMEOUT = 10000;
-const s_DEFAULT_PATH = '';
+const s_DEFAULT_PATH = '/';
 const s_DEFAULT_RECONNECT_INTERVAL = 10000;
 const s_DEFAULT_SERIALIZER = JSON;
 const s_DEFAULT_SSL = false;
 const s_DEFAULT_TRIGGER = true;
 
 /**
- * @param {NewSocketOptions}  opts - Defines an object hash of required and optional parameters.
+ * @param {NewSocketOptionsURL|NewSocketOptionsParts}  opts - Defines an object hash of required and optional
+ *                                                            parameters.
  *
  * @returns {SocketOptions} The complete socket options object.
  */
 export default function setSocketOptions(opts)
 {
-   if (!Number.isInteger(opts.port) || (opts.port < 0 || opts.port > 65535))
+   if (opts.url !== void 0 && typeof opts.url !== 'string' && !(opts.url instanceof URL))
+   {
+      throw new TypeError(`'opts.url' is not a string or URL.`);
+   }
+
+   let url = typeof opts.url === 'string' ? new URL(opts.url.toLowerCase()) : opts.url;
+
+   if (url !== void 0 && !url.protocol.match(/^wss?/))
+   {
+      throw new TypeError(`'opts.url' is not a WebSocket URL.`);
+   }
+
+   if ((url === void 0 && !Number.isInteger(opts.port)) || (opts.port < 0 || opts.port > 65535))
    {
       throw new TypeError(`'opts.port' is not an integer between [0-65535].`);
    }
@@ -33,7 +46,7 @@ export default function setSocketOptions(opts)
       throw new TypeError(`'opts.ssl' is not a boolean.`);
    }
 
-   opts.ssl = opts.ssl || s_DEFAULT_SSL;
+   opts.ssl = typeof opts.ssl === 'boolean' ? opts.ssl : s_DEFAULT_SSL;
 
    if (opts.path !== void 0 && typeof opts.path !== 'string')
    {
@@ -41,6 +54,9 @@ export default function setSocketOptions(opts)
    }
 
    opts.path = typeof opts.path === 'string' ? opts.path : s_DEFAULT_PATH;
+
+   // Add a leading slash if necessary to normalize path.
+   if (!opts.path.startsWith('/')) { opts.path = `/${opts.path}`; }
 
    if (opts.binaryType !== void 0 && typeof opts.binaryType !== 'string')
    {
@@ -84,8 +100,8 @@ export default function setSocketOptions(opts)
    }
 
 
-   opts.autoConnect = opts.autoConnect || s_DEFAULT_AUTO_CONNECT;
-   opts.autoReconnect = opts.autoReconnect || s_DEFAULT_AUTO_RECONNECT;
+   opts.autoConnect = typeof opts.autoConnect === 'boolean' ? opts.autoConnect : s_DEFAULT_AUTO_CONNECT;
+   opts.autoReconnect = typeof opts.autoReconnect === 'boolean' ? opts.autoReconnect : s_DEFAULT_AUTO_RECONNECT;
    opts.messageTimeout = opts.messageTimeout || s_DEFAULT_MESSAGE_TIMEOUT;
    opts.reconnectInterval = opts.reconnectInterval || s_DEFAULT_RECONNECT_INTERVAL;
 
@@ -101,9 +117,23 @@ export default function setSocketOptions(opts)
       throw new TypeError(`'opts.protocol' is not a string or string[].`);
    }
 
-   opts.protocol = opts.protocol ? opts.protocol : void 0;
+   opts.protocol = opts.protocol ? opts.protocol : [];
+
+   // Set URL from parts
+   if (url === void 0)
+   {
+      url = new URL(`${opts.ssl ? 'wss://' : 'ws://'}${opts.host}:${opts.port}${opts.path}`);
+   }
+   else  // Split parts from URL
+   {
+      opts.host = url.hostname;
+      opts.port = Number.parseInt(url.port);
+      opts.path = url.pathname;
+      opts.ssl = url.protocol.startsWith('wss');
+   }
 
    return {
+      url: url.toString(),
       host: opts.host,
       port: opts.port,
       ssl: opts.ssl,

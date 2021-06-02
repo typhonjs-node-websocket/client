@@ -96,12 +96,12 @@ export default class WSEventbus extends Eventbus
    {
       if (this._wsImplOptions !== void 0)
       {
-         this.#socket = new this.#WebSocketCtor(this.endpoint, this.#socketOptions.protocol,
+         this.#socket = new this.#WebSocketCtor(this.url, this.#socketOptions.protocol,
           this._wsImplOptions);
       }
       else
       {
-         this.#socket = new this.#WebSocketCtor(this.endpoint, this.#socketOptions.protocol);
+         this.#socket = new this.#WebSocketCtor(this.url, this.#socketOptions.protocol);
       }
 
       this.#socket.binaryType = this.#socketOptions.binaryType;
@@ -109,6 +109,7 @@ export default class WSEventbus extends Eventbus
       this.#socket.onclose = () =>
       {
          this.#connected = false;
+         this.#socket = void 0;
 
          this.onSocketClose();
 
@@ -187,12 +188,6 @@ export default class WSEventbus extends Eventbus
 
    get connected() { return this.#connected; }
 
-   get endpoint()
-   {
-      const opts = this.#socketOptions;
-      return `${opts.ssl ? 'wss://' : 'ws://'}${opts.host}:${opts.port}/${opts.path}`;
-   }
-
    get extensions() { return this.#socket ? this.#socket.extensions : ''; }
 
    get protocol() { return this.#socket ? this.#socket.protocol : ''; }
@@ -203,7 +198,7 @@ export default class WSEventbus extends Eventbus
 
    get socketOptions() { return this.#socketOptions; }
 
-   get url() { return this.#socket ? this.#socket.url : ''; }
+   get url() { return this.#socket ? this.#socket.url : this.#socketOptions.url; }
 
    onSocketClose() {}
 
