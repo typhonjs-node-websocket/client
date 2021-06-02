@@ -240,26 +240,35 @@ declare class WSEventbus$1 {
      * The `open`, `error` and `close` events are simply proxy-ed to `_socket`. The `message` event is instead parsed
      * into a js object (if possible) and then passed as a parameter of the `message:in` event.
      *
-     * @param {number}   timeout - Indicates a timeout in ms for connection attempt.
+     * @param {object}   options - Optional parameters.
+     *
+     * @param {number}   options.timeout - Indicates a timeout in ms for connection attempt.
      *
      * @returns {Promise<void|object>} A Promise resolved when connected or rejected with an error / timeout.
      */
-    connect(timeout?: number): Promise<void | object>;
+    connect({ timeout }?: {
+        timeout: number;
+    }): Promise<void | object>;
     /**
      * Disconnects / closes the socket.
      *
-     * @param {number}   [code] - A numeric value indicating the status code explaining why the connection is being
-     *                            closed. If this parameter is not specified, a default value of 1005 is assumed. See
-     *                            the list of status codes of CloseEvent for permitted values.
+     * @param {object}   options - Optional parameters.
      *
-     * @param {string}   [reason] - A human-readable string explaining why the connection is closing. This string must be
-     *                              no longer than 123 bytes of UTF-8 text (not characters).
+     * @param {number}   [options.code] - A numeric value indicating the status code explaining why the connection is
+     *                                    being closed. If this parameter is not specified, a default value of 1005
+     *                                    is assumed. See the list of status codes of CloseEvent for permitted values.
+     *
+     * @param {string}   [options.reason] - A human-readable string explaining why the connection is closing. This string
+     *                                      must be no longer than 123 bytes of UTF-8 text (not characters).
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#status_codes
      *
      * @returns {Promise<void|object>} A Promise that resolves when socket is closed or rejected with an error.
      */
-    disconnect(code?: number, reason?: string): Promise<void | object>;
+    disconnect({ code, reason }?: {
+        code?: number;
+        reason?: string;
+    }): Promise<void | object>;
     get bufferedAmount(): number;
     get connected(): boolean;
     get extensions(): string;
@@ -282,17 +291,36 @@ declare class WSEventbus$1 {
     /**
      * Reconnects the socket with potentially new socket options. First disconnects if currently connected.
      *
-     * @param {NewSocketOptionsURL|NewSocketOptionsParts} [socketOptions] - The options hash generated from
-     *                                                                      `setSocketOptions` defining the socket
-     *                                                                      configuration.
+     * @param {object}   options - Optional parameters.
      *
-     * @param {object}                                    [wsOptions] - Some WebSocket implementations may take an
-     *                                                                      implementation specific options object as
-     *                                                                      a third parameter.
+     * @param {NewSocketOptionsURL|NewSocketOptionsParts} [options.socketOptions] - The options hash generated from
+     *                                                            `setSocketOptions` defining the socket configuration.
+     *
+     * @param {object}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed to
+     *                                         the `ws` WebSocket.
+     *
+     * @param {number}   [options.code=1000] - A numeric value indicating the status code explaining why the
+     *                           connection is being closed. If this parameter is not specified, a default value of 1000
+     *                           is assumed indicating normal closure. See the list of status codes of CloseEvent for
+     *                           permitted values.
+     *
+     * @param {string}   [options.reason='reconnecting'] - A human-readable string explaining why the connection is
+     *                           closing. This string must be no longer than 123 bytes of UTF-8 text (not characters).
+     *
+     * @param {number}   [options.timeout=5000] - Indicates a timeout in ms for connection attempt.
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#status_codes
+     * @see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options
      *
      * @returns {Promise<void|object>} A Promise resolved when reconnected or rejected with an error / timeout.
      */
-    reconnect(socketOptions?: NewSocketOptionsURL | NewSocketOptionsParts, wsOptions?: object): Promise<void | object>;
+    reconnect({ socketOptions, wsOptions, code, reason, timeout }?: {
+        socketOptions?: NewSocketOptionsURL | NewSocketOptionsParts;
+        wsOptions?: object;
+        code?: number;
+        reason?: string;
+        timeout?: number;
+    }): Promise<void | object>;
     /**
      * Sends an object over the socket.
      *
