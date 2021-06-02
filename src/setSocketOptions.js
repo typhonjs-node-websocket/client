@@ -19,38 +19,38 @@ export default function setSocketOptions(opts)
 {
    if (opts.url !== void 0 && typeof opts.url !== 'string' && !(opts.url instanceof URL))
    {
-      throw new TypeError(`'opts.url' is not a string or URL.`);
+      throw new TypeError(`'socketOptions.url' is not a string or URL.`);
    }
 
    let url = typeof opts.url === 'string' ? new URL(opts.url.toLowerCase()) : opts.url;
 
    if (url !== void 0 && !url.protocol.match(/^wss?/))
    {
-      throw new TypeError(`'opts.url' is not a WebSocket URL.`);
+      throw new TypeError(`'socketOptions.url' is not a WebSocket URL.`);
    }
 
    if ((url === void 0 && !Number.isInteger(opts.port)) || (opts.port < 0 || opts.port > 65535))
    {
-      throw new TypeError(`'opts.port' is not an integer between [0-65535].`);
+      throw new TypeError(`'socketOptions.port' is not an integer between [0-65535].`);
    }
 
    if (opts.host !== void 0 && typeof opts.host !== 'string')
    {
-      throw new TypeError(`'opts.host' is not a string.`);
+      throw new TypeError(`'socketOptions.host' is not a string.`);
    }
 
    opts.host = opts.host || s_DEFAULT_HOST;
 
    if (opts.ssl !== void 0 && typeof opts.ssl !== 'boolean')
    {
-      throw new TypeError(`'opts.ssl' is not a boolean.`);
+      throw new TypeError(`'socketOptions.ssl' is not a boolean.`);
    }
 
    opts.ssl = typeof opts.ssl === 'boolean' ? opts.ssl : s_DEFAULT_SSL;
 
    if (opts.path !== void 0 && typeof opts.path !== 'string')
    {
-      throw new TypeError(`'opts.path' is not a string.`);
+      throw new TypeError(`'socketOptions.path' is not a string.`);
    }
 
    opts.path = typeof opts.path === 'string' ? opts.path : s_DEFAULT_PATH;
@@ -60,12 +60,12 @@ export default function setSocketOptions(opts)
 
    if (opts.binaryType !== void 0 && typeof opts.binaryType !== 'string')
    {
-      throw new TypeError(`'opts.binaryType' must be 'blob' or 'arraybuffer'.`);
+      throw new TypeError(`'socketOptions.binaryType' must be 'blob' or 'arraybuffer'.`);
    }
 
    if (opts.binaryType !== void 0 && opts.binaryType !== 'blob' && opts.binaryType !== 'arraybuffer')
    {
-      throw new TypeError(`'opts.binaryType' must be 'blob' or 'arraybuffer'.`);
+      throw new TypeError(`'socketOptions.binaryType' must be 'blob' or 'arraybuffer'.`);
    }
 
    opts.binaryType = typeof opts.binaryType === 'string' ? opts.binaryType : s_DEFAULT_BINARY_TYPE;
@@ -76,27 +76,27 @@ export default function setSocketOptions(opts)
    if (typeof opts.serializer !== 'object' || typeof opts.serializer.stringify !== 'function' ||
     typeof opts.serializer.parse !== 'function')
    {
-      throw new TypeError(`'opts.serializer' does not conform to the JSON API.`);
+      throw new TypeError(`'socketOptions.serializer' does not conform to the JSON API.`);
    }
 
    if (opts.autoConnect !== void 0 && typeof opts.autoConnect !== 'boolean')
    {
-      throw new TypeError(`'opts.autoConnect' is not a boolean.`);
+      throw new TypeError(`'socketOptions.autoConnect' is not a boolean.`);
    }
 
    if (opts.autoReconnect !== void 0 && typeof opts.autoReconnect !== 'boolean')
    {
-      throw new TypeError(`'opts.autoReconnect' is not a boolean.`);
+      throw new TypeError(`'socketOptions.autoReconnect' is not a boolean.`);
    }
 
    if (opts.messageTimeout !== void 0 && (!Number.isInteger(opts.messageTimeout) || opts.messageTimeout < 0))
    {
-      throw new TypeError(`'opts.messageTimeout' is not an integer or < 0.`);
+      throw new TypeError(`'socketOptions.messageTimeout' is not an integer or < 0.`);
    }
 
    if (opts.reconnectInterval !== void 0 && (!Number.isInteger(opts.reconnectInterval) || opts.reconnectInterval < 0))
    {
-      throw new TypeError(`'opts.reconnectInterval' is not an integer or < 0.`);
+      throw new TypeError(`'socketOptions.reconnectInterval' is not an integer or < 0.`);
    }
 
 
@@ -107,14 +107,14 @@ export default function setSocketOptions(opts)
 
    if (opts.trigger !== void 0 && typeof opts.trigger !== 'boolean')
    {
-      throw new TypeError(`'opts.trigger' is not a boolean.`);
+      throw new TypeError(`'socketOptions.trigger' is not a boolean.`);
    }
 
    opts.trigger = typeof opts.trigger === 'boolean' ? opts.trigger : s_DEFAULT_TRIGGER;
 
    if (opts.protocol !== void 0 && typeof opts.protocol !== 'string' && !Array.isArray(opts.protocol))
    {
-      throw new TypeError(`'opts.protocol' is not a string or string[].`);
+      throw new TypeError(`'socketOptions.protocol' is not a string or string[].`);
    }
 
    opts.protocol = opts.protocol ? opts.protocol : [];
