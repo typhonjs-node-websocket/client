@@ -1,7 +1,7 @@
 import Eventbus         from '@typhonjs-plugin/eventbus';
 
-import Queue            from './Queue.js';
-import setSocketOptions from './setSocketOptions.js';
+import Queue            from './utils/Queue.js';
+import setClientOptions from './utils/setClientOptions.js';
 
 const s_STR_EVENT_CLOSE = 'socket:close';
 const s_STR_EVENT_ERROR = 'socket:error';
@@ -13,6 +13,13 @@ const s_STR_EVENT_SOCKET_OPEN = 'socket:open';
  */
 export default class WSEventbus extends Eventbus
 {
+   /**
+    * The parsed client options.
+    *
+    * @type {ClientOptions}
+    */
+   #clientOptions;
+
    /**
     * Stores the connection status. The default message queue consumer implementation checks for 'connected' status.
     *
@@ -26,13 +33,6 @@ export default class WSEventbus extends Eventbus
     * @type {Queue}
     */
    #queue;
-
-   /**
-    * The socket options parameters.
-    *
-    * @type {SocketOptions}
-    */
-   #socketOptions;
 
    /**
     * @type {WebSocket}
@@ -56,17 +56,15 @@ export default class WSEventbus extends Eventbus
    /**
     * Creates the socket.
     *
-    * @param {Function|WebSocket}                        WebSocketCtor - The constructor for the WebSocket
-    *                                                                    implementation.
+    * @param {Function|WebSocket}                  WebSocketCtor - The constructor for the WebSocket implementation.
     *
-    * @param {NewSocketOptionsURL|NewSocketOptionsParts} socketOptions - The options hash generated from
-    *                                                                    `setSocketOptions` defining the socket
-    *                                                                    configuration.
+    * @param {ClientOptionsURL|ClientOptionsParts} clientOptions - Defines the options for a WebSocket client by
+    *                                                              individual parts or complete URL.
     *
-    * @param {object}                                    [wsOptions] - On Node `ws` is the WebSocket implementation.
-    *                                                                  This object is passed to the `ws` WebSocket.
+    * @param {object}                              [wsOptions] - On Node `ws` is the WebSocket implementation. This
+    *                                                            object is passed to the `ws` WebSocket.
     */
-   constructor(WebSocketCtor, socketOptions, wsOptions = void 0)
+   constructor(WebSocketCtor, clientOptions, wsOptions = void 0)
    {
       super();
 
@@ -77,7 +75,7 @@ export default class WSEventbus extends Eventbus
 
       this.#WebSocketCtor = WebSocketCtor;
 
-      this.#socketOptions = setSocketOptions(socketOptions);
+      this.#clientOptions = setClientOptions(clientOptions);
 
       this.#queue = new Queue((message) =>
       {
@@ -88,7 +86,7 @@ export default class WSEventbus extends Eventbus
       this.#wsOptions = wsOptions;
 
       // Potentially schedule auto connection
-      if (this.#socketOptions.autoConnect)
+      if (this.#clientOptions.autoConnect)
       {
          setTimeout(this.connect.bind(this), 0);
       }
@@ -104,7 +102,7 @@ export default class WSEventbus extends Eventbus
     *
     * @returns {Promise<void|object>} A Promise resolved when connected or rejected with an error / timeout.
     */
-   async connect({ timeout = this.socketOptions.connectTimeout } = {})
+   async connect({ timeout = this.clientOptions.connectTimeout } = {})
    {
       if (!Number.isInteger(timeout) || timeout < 0)
       {
@@ -121,14 +119,14 @@ export default class WSEventbus extends Eventbus
 
       if (this.#wsOptions !== void 0)
       {
-         this.#socket = new this.#WebSocketCtor(this.url, this.#socketOptions.protocol, this.#wsOptions);
+         this.#socket = new this.#WebSocketCtor(this.url, this.#clientOptions.protocol, this.#wsOptions);
       }
       else
       {
-         this.#socket = new this.#WebSocketCtor(this.url, this.#socketOptions.protocol);
+         this.#socket = new this.#WebSocketCtor(this.url, this.#clientOptions.protocol);
       }
 
-      this.#socket.binaryType = this.#socketOptions.binaryType;
+      this.#socket.binaryType = this.#clientOptions.binaryType;
 
       this.#socket.onclose = () =>
       {
@@ -137,12 +135,12 @@ export default class WSEventbus extends Eventbus
 
          this.onSocketClose();
 
-         if (this.#socketOptions.trigger) { super.triggerDefer(s_STR_EVENT_CLOSE); }
+         if (this.#clientOptions.trigger) { super.triggerDefer(s_STR_EVENT_CLOSE); }
 
-         if (this.#socketOptions.autoReconnect)
+         if (this.#clientOptions.autoReconnect)
          {
             // Schedule a reconnection
-            setTimeout(this.connect.bind(this), this.#socketOptions.reconnectInterval);
+            setTimeout(this.connect.bind(this), this.#clientOptions.reconnectInterval);
          }
       };
 
@@ -150,7 +148,7 @@ export default class WSEventbus extends Eventbus
       {
          this.onSocketError(error);
 
-         if (this.#socketOptions.trigger) { super.triggerDefer(s_STR_EVENT_ERROR, error); }
+         if (this.#clientOptions.trigger) { super.triggerDefer(s_STR_EVENT_ERROR, error); }
       };
 
       this.#socket.onmessage = (event) =>
@@ -159,7 +157,7 @@ export default class WSEventbus extends Eventbus
 
          try
          {
-            data = typeof event.data === 'string' ? this.#socketOptions.serializer.parse(event.data) : event.data;
+            data = typeof event.data === 'string' ? this.#clientOptions.serializer.parse(event.data) : event.data;
          }
          catch (err)
          {
@@ -168,7 +166,7 @@ export default class WSEventbus extends Eventbus
 
          this.onSocketMessage(data);
 
-         if (this.#socketOptions.trigger) { super.triggerDefer(s_STR_EVENT_MESSAGE_IN, data); }
+         if (this.#clientOptions.trigger) { super.triggerDefer(s_STR_EVENT_MESSAGE_IN, data); }
       };
 
       this.#socket.onopen = () =>
@@ -177,7 +175,7 @@ export default class WSEventbus extends Eventbus
 
          this.onSocketOpen();
 
-         if (this.#socketOptions.trigger) { super.triggerDefer(s_STR_EVENT_SOCKET_OPEN); }
+         if (this.#clientOptions.trigger) { super.triggerDefer(s_STR_EVENT_SOCKET_OPEN); }
 
          this.#queue.process();
       };
@@ -258,6 +256,8 @@ export default class WSEventbus extends Eventbus
 
    get bufferedAmount() { return this.#socket ? this.#socket.bufferedAmount : 0; }
 
+   get clientOptions() { return this.#clientOptions; }
+
    get connected() { return this.#connected; }
 
    get extensions() { return this.#socket ? this.#socket.extensions : ''; }
@@ -268,9 +268,7 @@ export default class WSEventbus extends Eventbus
 
    get readyState() { return this.#socket ? this.#socket.readyState : 3; }
 
-   get socketOptions() { return this.#socketOptions; }
-
-   get url() { return this.#socket ? this.#socket.url : this.#socketOptions.url; }
+   get url() { return this.#socket ? this.#socket.url : this.#clientOptions.url; }
 
    get wsOptions() { return this.#wsOptions; }
 
@@ -293,8 +291,8 @@ export default class WSEventbus extends Eventbus
     *
     * @param {object}   options - Optional parameters.
     *
-    * @param {NewSocketOptionsURL|NewSocketOptionsParts} [options.socketOptions] - The options hash generated from
-    *                                                            `setSocketOptions` defining the socket configuration.
+    * @param {ClientOptionsURL|ClientOptionsParts} [options.clientOptions] - Defines the options for a WebSocket client
+    *                                                                        by individual parts or complete URL.
     *
     * @param {object}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed to
     *                                         the `ws` WebSocket.
@@ -314,11 +312,11 @@ export default class WSEventbus extends Eventbus
     *
     * @returns {Promise<void|object>} A Promise resolved when reconnected or rejected with an error / timeout.
     */
-   async reconnect({ socketOptions = void 0, wsOptions = void 0, code = 1000, reason = 'reconnecting', timeout } = {})
+   async reconnect({ clientOptions = void 0, wsOptions = void 0, code = 1000, reason = 'reconnecting', timeout } = {})
    {
-      if (socketOptions !== void 0)
+      if (clientOptions !== void 0)
       {
-         this.#socketOptions = setSocketOptions(socketOptions);
+         this.#clientOptions = setClientOptions(clientOptions);
       }
 
       if (wsOptions !== void 0 && typeof wsOptions !== 'object')
@@ -347,7 +345,7 @@ export default class WSEventbus extends Eventbus
    {
       if (this.#socket)
       {
-         this.#socket.send(data.constructor === Object ? this.#socketOptions.serializer.stringify(data) : data);
+         this.#socket.send(data.constructor === Object ? this.#clientOptions.serializer.stringify(data) : data);
       }
 
       return this;
@@ -366,7 +364,7 @@ export default class WSEventbus extends Eventbus
       {
          for (const entry of data)
          {
-            this.#socket.send(entry.constructor === Object ? this.#socketOptions.serializer.stringify(entry) : entry);
+            this.#socket.send(entry.constructor === Object ? this.#clientOptions.serializer.stringify(entry) : entry);
          }
       }
 

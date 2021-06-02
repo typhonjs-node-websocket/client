@@ -5,16 +5,17 @@ import WSSEventbus      from '../WSEventbus.js';
 export default class WSEventbus extends WSSEventbus
 {
    /**
-    * @param {NewSocketOptionsURL|NewSocketOptionsParts}  socketOptions - Options to create WebSocket.
+    * @param {ClientOptionsURL|ClientOptionsParts}  clientOptions - Defines the options for a WebSocket client by
+    *                                                               individual parts or complete URL.
     *
-    * @param {object}                                    [wsOptions] - On Node `ws` is the WebSocket implementation.
-    *                                                                  This object is passed to the `ws` WebSocket.
+    * @param {object}                               [wsOptions] - On Node `ws` is the WebSocket implementation. This
+    *                                                             object is passed to the `ws` WebSocket as options.
     *
     * @see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options
     */
-   constructor(socketOptions, wsOptions = void 0)
+   constructor(clientOptions, wsOptions = void 0)
    {
-      super(WebSocket, socketOptions, wsOptions);
+      super(WebSocket, clientOptions, wsOptions);
    }
 
    /**
@@ -22,8 +23,8 @@ export default class WSEventbus extends WSSEventbus
     *
     * @param {object}   options - Optional parameters.
     *
-    * @param {NewSocketOptionsURL|NewSocketOptionsParts} [options.socketOptions] - The options hash generated from
-    *                                                            `setSocketOptions` defining the socket configuration.
+    * @param {ClientOptionsURL|ClientOptionsParts} [options.clientOptions] - Defines the options for a WebSocket client
+    *                                                                        by individual parts or complete URL.
     *
     * @param {object}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed to
     *                                         the `ws` WebSocket.
@@ -42,9 +43,10 @@ export default class WSEventbus extends WSSEventbus
     * @see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options
     *
     * @returns {Promise<void|object>} A Promise resolved when reconnected or rejected with an error / timeout.
+    * @override
     */
-   async reconnect({ socketOptions = void 0, wsOptions = void 0, code = 1000, reason = 'reconnecting', timeout } = {})
+   async reconnect({ clientOptions = void 0, wsOptions = void 0, code = 1000, reason = 'reconnecting', timeout } = {})
    {
-      return super.reconnect({ socketOptions, wsOptions, code, reason, timeout });
+      return super.reconnect({ clientOptions, wsOptions, code, reason, timeout });
    }
 }

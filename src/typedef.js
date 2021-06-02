@@ -1,5 +1,5 @@
 /**
- * @typedef {object} NewSocketOptionsParts - Defines the parameters to construct a new WSEventbus & WebSocket.
+ * @typedef {object} ClientOptionsParts - Defines the options for a WebSocket client by individual parts.
  *
  * @property {number}            port - port [0-65535].
  *
@@ -30,7 +30,7 @@
  */
 
 /**
- * @typedef {object} NewSocketOptionsURL - Defines the parameters to construct a new WSEventbus & WebSocket.
+ * @typedef {object} ClientOptionsURL - Defines the options for a WebSocket client from an URL.
  *
  * @property {string|URL}        url - This should be the URL to which the WebSocket server will respond.
  *
@@ -55,7 +55,7 @@
  */
 
 /**
- * @typedef {object} SocketOptions - Defines the parsed options for WSEventbus.
+ * @typedef {object} ClientOptions - Defines the parsed options for a WebSocket client.
  *
  * @property {string}            url - This should be the URL to which the WebSocket server will respond.
  *

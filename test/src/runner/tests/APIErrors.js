@@ -40,162 +40,162 @@ export function run({ Module, data, env, chai })
          });
       });
 
-      describe('setSocketOptions:', () =>
+      describe('setClientOptions:', () =>
       {
-         it(`'socketOptions' is null or undefined.`, () =>
+         it(`'clientOptions' is null or undefined.`, () =>
          {
             expect(() => new WSEventbus(null)).to.throw(TypeError,
-             `'socketOptions' is null or undefined.`);
+             `'clientOptions' is null or undefined.`);
          });
 
-         it(`'socketOptions' is null or undefined.`, () =>
+         it(`'clientOptions' is null or undefined.`, () =>
          {
             expect(() => new WSEventbus(void 0)).to.throw(TypeError,
-             `'socketOptions' is null or undefined.`);
+             `'clientOptions' is null or undefined.`);
          });
 
-         it(`'socketOptions' is not an object.`, () =>
+         it(`'clientOptions' is not an object.`, () =>
          {
             expect(() => new WSEventbus(false)).to.throw(TypeError,
-             `'socketOptions' is not an object.`);
+             `'clientOptions' is not an object.`);
          });
 
-         it(`'socketOptions.url' is not a string or URL.`, () =>
+         it(`'clientOptions.url' is not a string or URL.`, () =>
          {
             expect(() => new WSEventbus({ url: false })).to.throw(TypeError,
-             `'socketOptions.url' is not a string or URL.`);
+             `'clientOptions.url' is not a string or URL.`);
          });
 
-         it(`'socketOptions.url' is not a WebSocket URL.`, () =>
+         it(`'clientOptions.url' is not a WebSocket URL.`, () =>
          {
             expect(() => new WSEventbus({ url: 'https://bad.com' })).to.throw(TypeError,
-             `'socketOptions.url' is not a WebSocket URL.`);
+             `'clientOptions.url' is not a WebSocket URL.`);
          });
 
-         it(`'socketOptions.port' is not an integer between [0-65535]. (not integer)`, () =>
+         it(`'clientOptions.port' is not an integer between [0-65535]. (not integer)`, () =>
          {
             expect(() => new WSEventbus({ port: false })).to.throw(TypeError,
-             `'socketOptions.port' is not an integer between [0-65535].`);
+             `'clientOptions.port' is not an integer between [0-65535].`);
          });
 
-         it(`'socketOptions.port' is not an integer between [0-65535]. (< 0)`, () =>
+         it(`'clientOptions.port' is not an integer between [0-65535]. (< 0)`, () =>
          {
             expect(() => new WSEventbus({ port: -1 })).to.throw(TypeError,
-             `'socketOptions.port' is not an integer between [0-65535].`);
+             `'clientOptions.port' is not an integer between [0-65535].`);
          });
 
-         it(`'socketOptions.port' is not an integer between [0-65535]. (> 65535)`, () =>
+         it(`'clientOptions.port' is not an integer between [0-65535]. (> 65535)`, () =>
          {
             expect(() => new WSEventbus({ port: 65536 })).to.throw(TypeError,
-             `'socketOptions.port' is not an integer between [0-65535].`);
+             `'clientOptions.port' is not an integer between [0-65535].`);
          });
 
-         it(`'socketOptions.host' is not a string.`, () =>
+         it(`'clientOptions.host' is not a string.`, () =>
          {
             expect(() => new WSEventbus({ port: 0, host: false })).to.throw(TypeError,
-             `'socketOptions.host' is not a string.`);
+             `'clientOptions.host' is not a string.`);
          });
 
-         it(`'socketOptions.ssl' is not a boolean.`, () =>
+         it(`'clientOptions.ssl' is not a boolean.`, () =>
          {
             expect(() => new WSEventbus({ port: 0,  ssl: 0 })).to.throw(TypeError,
-             `'socketOptions.ssl' is not a boolean.`);
+             `'clientOptions.ssl' is not a boolean.`);
          });
 
-         it(`'socketOptions.binaryType' must be 'blob' or 'arraybuffer'. (not string)`, () =>
+         it(`'clientOptions.binaryType' must be 'blob' or 'arraybuffer'. (not string)`, () =>
          {
             expect(() => new WSEventbus({ port: 0,  binaryType: false })).to.throw(TypeError,
-             `'socketOptions.binaryType' must be 'blob' or 'arraybuffer'.`);
+             `'clientOptions.binaryType' must be 'blob' or 'arraybuffer'.`);
          });
 
-         it(`'socketOptions.binaryType' must be 'blob' or 'arraybuffer'. (not 'blob' / 'arraybuffer')`, () =>
+         it(`'clientOptions.binaryType' must be 'blob' or 'arraybuffer'. (not 'blob' / 'arraybuffer')`, () =>
          {
             expect(() => new WSEventbus({ port: 0,  binaryType: 'bad' })).to.throw(TypeError,
-             `'socketOptions.binaryType' must be 'blob' or 'arraybuffer'.`);
+             `'clientOptions.binaryType' must be 'blob' or 'arraybuffer'.`);
          });
 
-         it(`'socketOptions.serializer' does not conform to the JSON API. (not object)`, () =>
+         it(`'clientOptions.serializer' does not conform to the JSON API. (not object)`, () =>
          {
             expect(() => new WSEventbus({ port: 0,  serializer: 'bad' })).to.throw(TypeError,
-             `'socketOptions.serializer' does not conform to the JSON API.`);
+             `'clientOptions.serializer' does not conform to the JSON API.`);
          });
 
-         it(`'socketOptions.serializer' does not conform to the JSON API. (missing stringify)`, () =>
+         it(`'clientOptions.serializer' does not conform to the JSON API. (missing stringify)`, () =>
          {
             expect(() => new WSEventbus({ port: 0, serializer: { parse: () => {} } })).to.throw(TypeError,
-             `'socketOptions.serializer' does not conform to the JSON API.`);
+             `'clientOptions.serializer' does not conform to the JSON API.`);
          });
 
-         it(`'socketOptions.serializer' does not conform to the JSON API. (missing parse)`, () =>
+         it(`'clientOptions.serializer' does not conform to the JSON API. (missing parse)`, () =>
          {
             expect(() => new WSEventbus({ port: 0, serializer: { stringify: () => {} } })).to.throw(TypeError,
-             `'socketOptions.serializer' does not conform to the JSON API.`);
+             `'clientOptions.serializer' does not conform to the JSON API.`);
          });
 
-         it(`'socketOptions.autoConnect' is not a boolean.`, () =>
+         it(`'clientOptions.autoConnect' is not a boolean.`, () =>
          {
             expect(() => new WSEventbus({ port: 0, autoConnect: 0 })).to.throw(TypeError,
-               `'socketOptions.autoConnect' is not a boolean.`);
+               `'clientOptions.autoConnect' is not a boolean.`);
          });
 
-         it(`'socketOptions.autoReconnect' is not a boolean.`, () =>
+         it(`'clientOptions.autoReconnect' is not a boolean.`, () =>
          {
             expect(() => new WSEventbus({ port: 0, autoReconnect: 0 })).to.throw(TypeError,
-             `'socketOptions.autoReconnect' is not a boolean.`);
+             `'clientOptions.autoReconnect' is not a boolean.`);
          });
 
-         it(`'socketOptions.connectTimeout' is not an integer or < 0. (not number)`, () =>
+         it(`'clientOptions.connectTimeout' is not an integer or < 0. (not number)`, () =>
          {
             expect(() => new WSEventbus({ port: 0, connectTimeout: false })).to.throw(TypeError,
-             `'socketOptions.connectTimeout' is not an integer or < 0.`);
+             `'clientOptions.connectTimeout' is not an integer or < 0.`);
          });
 
-         it(`'socketOptions.connectTimeout' is not an integer or < 0. (< 0)`, () =>
+         it(`'clientOptions.connectTimeout' is not an integer or < 0. (< 0)`, () =>
          {
             expect(() => new WSEventbus({ port: 0, connectTimeout: -1 })).to.throw(TypeError,
-             `'socketOptions.connectTimeout' is not an integer or < 0.`);
+             `'clientOptions.connectTimeout' is not an integer or < 0.`);
          });
 
-         it(`'socketOptions.messageTimeout' is not an integer or < 0. (not number)`, () =>
+         it(`'clientOptions.messageTimeout' is not an integer or < 0. (not number)`, () =>
          {
             expect(() => new WSEventbus({ port: 0, messageTimeout: false })).to.throw(TypeError,
-             `'socketOptions.messageTimeout' is not an integer or < 0.`);
+             `'clientOptions.messageTimeout' is not an integer or < 0.`);
          });
 
-         it(`'socketOptions.messageTimeout' is not an integer or < 0. (< 0)`, () =>
+         it(`'clientOptions.messageTimeout' is not an integer or < 0. (< 0)`, () =>
          {
             expect(() => new WSEventbus({ port: 0, messageTimeout: -1 })).to.throw(TypeError,
-             `'socketOptions.messageTimeout' is not an integer or < 0.`);
+             `'clientOptions.messageTimeout' is not an integer or < 0.`);
          });
 
-         it(`'socketOptions.reconnectInterval' is not an integer or < 0. (not number)`, () =>
+         it(`'clientOptions.reconnectInterval' is not an integer or < 0. (not number)`, () =>
          {
             expect(() => new WSEventbus({ port: 0, reconnectInterval: false })).to.throw(TypeError,
-             `'socketOptions.reconnectInterval' is not an integer or < 0.`);
+             `'clientOptions.reconnectInterval' is not an integer or < 0.`);
          });
 
-         it(`'socketOptions.reconnectInterval' is not an integer or < 0. (< 0)`, () =>
+         it(`'clientOptions.reconnectInterval' is not an integer or < 0. (< 0)`, () =>
          {
             expect(() => new WSEventbus({ port: 0, reconnectInterval: -1 })).to.throw(TypeError,
-             `'socketOptions.reconnectInterval' is not an integer or < 0.`);
+             `'clientOptions.reconnectInterval' is not an integer or < 0.`);
          });
 
-         it(`'socketOptions.path' is not a string.`, () =>
+         it(`'clientOptions.path' is not a string.`, () =>
          {
             expect(() => new WSEventbus({ port: 0, path: false })).to.throw(TypeError,
-             `'socketOptions.path' is not a string.`);
+             `'clientOptions.path' is not a string.`);
          });
 
-         it(`'socketOptions.protocol' is not a string or string[].`, () =>
+         it(`'clientOptions.protocol' is not a string or string[].`, () =>
          {
             expect(() => new WSEventbus({ port: 0, protocol: false })).to.throw(TypeError,
-             `'socketOptions.protocol' is not a string or string[].`);
+             `'clientOptions.protocol' is not a string or string[].`);
          });
 
-         it(`'socketOptions.trigger' is not a boolean.`, () =>
+         it(`'clientOptions.trigger' is not a boolean.`, () =>
          {
             expect(() => new WSEventbus({ port: 0, trigger: 0 })).to.throw(TypeError,
-             `'socketOptions.trigger' is not a boolean.`);
+             `'clientOptions.trigger' is not a boolean.`);
          });
       });
 

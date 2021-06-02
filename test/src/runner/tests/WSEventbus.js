@@ -174,7 +174,7 @@ export function run({ Module, data, env, chai })
          });
       });
 
-      describe(`socketOptions:`, () =>
+      describe(`clientOptions:`, () =>
       {
          let socket;
 
@@ -201,7 +201,7 @@ export function run({ Module, data, env, chai })
             {
                socket.once('socket:open', () =>
                {
-                  socket.socketOptions.autoReconnect = false;
+                  socket.clientOptions.autoReconnect = false;
                   done();
                });
             });
@@ -359,18 +359,18 @@ export function run({ Module, data, env, chai })
             });
          });
 
-         it('get socketOptions', () =>
+         it('get clientOptions', () =>
          {
             socket = new WSEventbus(options());
-            assert.deepEqual(socket.socketOptions, data.setSocketOptions(options()));
+            assert.deepEqual(socket.clientOptions, data.setClientOptions(options()));
          });
 
-         it('socketOptions', () =>
+         it('clientOptions', () =>
          {
             socket = new WSEventbus({ url: 'ws://localhost:8001' });
             const socket2 = new WSEventbus({ port: 8001 });
 
-            assert.deepEqual(socket.socketOptions, socket2.socketOptions);
+            assert.deepEqual(socket.clientOptions, socket2.clientOptions);
          });
 
          it('get url', (done) =>
@@ -412,7 +412,7 @@ export function run({ Module, data, env, chai })
 
             assert.strictEqual(socket.url, 'ws://localhost:8001/');
 
-            await socket.reconnect({ socketOptions: options({ path: 'test' }), wsOptions });
+            await socket.reconnect({ clientOptions: options({ path: 'test' }), wsOptions });
 
             assert.strictEqual(socket.url, 'ws://localhost:8001/test');
 
@@ -436,7 +436,7 @@ export function run({ Module, data, env, chai })
          {
             class CustomWSEventbus extends WSEventbus
             {
-               constructor(socketOptions) { super(socketOptions); }
+               constructor(clientOptions) { super(clientOptions); }
 
                onSocketClose() { done(); }
 
