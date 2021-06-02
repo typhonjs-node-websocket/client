@@ -19,7 +19,8 @@ export function run({ Module, data, env, chai })
          {
             const socket = new WSEventbus({ port: 8001 });
 
-            await expect(socket.connect(null)).to.be.rejectedWith(TypeError, `Cannot read property 'timeout' of null`);
+            // should be `Cannot read property 'timeout' of null`, but on Node 12.0.0 a different error message prints
+            await expect(socket.connect(null)).to.be.rejectedWith(TypeError);
          });
 
          it(`'timeout' must be a positive integer. (< 0)`, async () =>
