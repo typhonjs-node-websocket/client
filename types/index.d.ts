@@ -36,11 +36,15 @@ type NewSocketOptionsParts = {
      */
     autoReconnect?: boolean;
     /**
-     * - Indicates a timeout for message responses.
+     * - Indicates a timeout in ms for connection attempts.
+     */
+    connectTimeout?: number;
+    /**
+     * - Indicates a timeout in ms for message responses.
      */
     messageTimeout?: number;
     /**
-     * - Indicates socket reconnect interval.
+     * - Indicates socket reconnect interval in ms.
      */
     reconnectInterval?: number;
     /**
@@ -78,11 +82,15 @@ type NewSocketOptionsURL = {
      */
     autoReconnect?: boolean;
     /**
-     * - Indicates a timeout for message responses.
+     * - Indicates a timeout in ms for connection attempts.
+     */
+    connectTimeout?: number;
+    /**
+     * - Indicates a timeout in ms for message responses.
      */
     messageTimeout?: number;
     /**
-     * - Indicates socket reconnect interval.
+     * - Indicates socket reconnect interval in ms.
      */
     reconnectInterval?: number;
     /**
@@ -135,11 +143,15 @@ type SocketOptions = {
      */
     autoReconnect: boolean;
     /**
-     * - Indicates a timeout for message responses.
+     * - Indicates a timeout in ms for connection attempts.
+     */
+    connectTimeout: number;
+    /**
+     * - Indicates a timeout in ms for message responses.
      */
     messageTimeout: number;
     /**
-     * - Indicates socket reconnect interval.
+     * - Indicates socket reconnect interval in ms.
      */
     reconnectInterval: number;
     /**
@@ -213,29 +225,26 @@ declare class WSEventbus$1 {
     /**
      * Creates the socket.
      *
-     * @param {Function|WebSocket}   WebSocketCtor - The constructor for the WebSocket implementation.
+     * @param {Function|WebSocket}                        WebSocketCtor - The constructor for the WebSocket
+     *                                                                    implementation.
      *
-     * @param {object}               socketOptions - The options hash generated from `setSocketOptions` defining the
-     *                                               socket configuration.
+     * @param {NewSocketOptionsURL|NewSocketOptionsParts} socketOptions - The options hash generated from
+     *                                                                    `setSocketOptions` defining the socket
+     *                                                                    configuration.
      *
-     * @param {object}               [wsImplOptions] - Some WebSocket implementations may take an implementation specific
-     *                                                 options object as a third parameter.
+     * @param {object}                                    [wsOptions] - On Node `ws` is the WebSocket implementation.
+     *                                                                  This object is passed to the `ws` WebSocket.
      */
-    constructor(WebSocketCtor: Function | WebSocket, socketOptions?: object, wsImplOptions?: object);
-    /**
-     * Some WebSocket implementations may take an implementation specific options object as a third parameter.
-     *
-     * @type {Object}
-     * @protected
-     */
-    protected _wsImplOptions: any;
+    constructor(WebSocketCtor: Function | WebSocket, socketOptions: NewSocketOptionsURL | NewSocketOptionsParts, wsOptions?: object);
     /**
      * The `open`, `error` and `close` events are simply proxy-ed to `_socket`. The `message` event is instead parsed
      * into a js object (if possible) and then passed as a parameter of the `message:in` event.
      *
-     * @returns {WSEventbus} This WSEventbus instance.
+     * @param {number}   timeout - Indicates a timeout in ms for connection attempt.
+     *
+     * @returns {Promise<void|object>} A Promise resolved when connected or rejected with an error / timeout.
      */
-    connect(): WSEventbus$1;
+    connect(timeout?: number): Promise<void | object>;
     /**
      * Disconnects / closes the socket.
      *
@@ -246,9 +255,11 @@ declare class WSEventbus$1 {
      * @param {string}   [reason] - A human-readable string explaining why the connection is closing. This string must be
      *                              no longer than 123 bytes of UTF-8 text (not characters).
      *
-     * @returns {WSEventbus} This WSEventbus instance.
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#status_codes
+     *
+     * @returns {Promise<void|object>} A Promise that resolves when socket is closed or rejected with an error.
      */
-    disconnect(code?: number, reason?: string): WSEventbus$1;
+    disconnect(code?: number, reason?: string): Promise<void | object>;
     get bufferedAmount(): number;
     get connected(): boolean;
     get extensions(): string;
@@ -257,6 +268,7 @@ declare class WSEventbus$1 {
     get readyState(): number;
     get socketOptions(): SocketOptions;
     get url(): string;
+    get wsOptions(): any;
     onSocketClose(): void;
     /**
      * @param {object}   error - The error event.
@@ -267,6 +279,20 @@ declare class WSEventbus$1 {
      */
     onSocketMessage(data: any): void;
     onSocketOpen(): void;
+    /**
+     * Reconnects the socket with potentially new socket options. First disconnects if currently connected.
+     *
+     * @param {NewSocketOptionsURL|NewSocketOptionsParts} [socketOptions] - The options hash generated from
+     *                                                                      `setSocketOptions` defining the socket
+     *                                                                      configuration.
+     *
+     * @param {object}                                    [wsOptions] - Some WebSocket implementations may take an
+     *                                                                      implementation specific options object as
+     *                                                                      a third parameter.
+     *
+     * @returns {Promise<void|object>} A Promise resolved when reconnected or rejected with an error / timeout.
+     */
+    reconnect(socketOptions?: NewSocketOptionsURL | NewSocketOptionsParts, wsOptions?: object): Promise<void | object>;
     /**
      * Sends an object over the socket.
      *
@@ -290,10 +316,12 @@ declare class WSEventbus extends WSEventbus$1 {
     /**
      * @param {NewSocketOptionsURL|NewSocketOptionsParts}  socketOptions - Options to create WebSocket.
      *
-     * @param {object}            [wsImplOptions] - Some WebSocket implementations may take an implementation specific
-     *                                              options object as a third parameter.
+     * @param {object}                                    [wsOptions] - On Node `ws` is the WebSocket implementation.
+     *                                                                  This object is passed to the `ws` WebSocket.
+     *
+     * @see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options
      */
-    constructor(socketOptions: NewSocketOptionsURL | NewSocketOptionsParts, wsImplOptions?: object);
+    constructor(socketOptions: NewSocketOptionsURL | NewSocketOptionsParts, wsOptions?: object);
     #private;
 }
 
