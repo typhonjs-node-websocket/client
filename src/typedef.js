@@ -18,9 +18,11 @@
  *
  * @property {boolean}           [autoReconnect=false] - Indicates if socket should reconnect on socket closed.
  *
- * @property {number}            [messageTimeout=10000] - Indicates a timeout for message responses.
+ * @property {number}            [connectTimeout=5000] - Indicates a timeout in ms for connection attempts.
  *
- * @property {number}            [reconnectInterval=10000] - Indicates socket reconnect interval.
+ * @property {number}            [messageTimeout=10000] - Indicates a timeout in ms for message responses.
+ *
+ * @property {number}            [reconnectInterval=10000] - Indicates socket reconnect interval in ms.
  *
  * @property {string|string[]}   [protocol] - Defines the websocket protocol(s).
  *
@@ -41,9 +43,11 @@
  *
  * @property {boolean}           [autoReconnect=false] - Indicates if socket should reconnect on socket closed.
  *
- * @property {number}            [messageTimeout=10000] - Indicates a timeout for message responses.
+ * @property {number}            [connectTimeout=5000] - Indicates a timeout in ms for connection attempts.
  *
- * @property {number}            [reconnectInterval=10000] - Indicates socket reconnect interval.
+ * @property {number}            [messageTimeout=10000] - Indicates a timeout in ms for message responses.
+ *
+ * @property {number}            [reconnectInterval=10000] - Indicates socket reconnect interval in ms.
  *
  * @property {string|string[]}   [protocol] - Defines the websocket protocol(s).
  *
@@ -71,9 +75,11 @@
  *
  * @property {boolean}           autoReconnect - Indicates if socket should reconnect on socket closed.
  *
- * @property {number}            messageTimeout - Indicates a timeout for message responses.
+ * @property {number}            connectTimeout - Indicates a timeout in ms for connection attempts.
  *
- * @property {number}            reconnectInterval - Indicates socket reconnect interval.
+ * @property {number}            messageTimeout - Indicates a timeout in ms for message responses.
+ *
+ * @property {number}            reconnectInterval - Indicates socket reconnect interval in ms.
  *
  * @property {string|string[]}   protocol - Defines the websocket protocol(s)
  *

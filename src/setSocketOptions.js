@@ -1,10 +1,11 @@
 const s_DEFAULT_AUTO_CONNECT = false;
 const s_DEFAULT_AUTO_RECONNECT = false;
 const s_DEFAULT_BINARY_TYPE = 'blob';
+const s_DEFAULT_CONNECT_TIMEOUT = 5000;
 const s_DEFAULT_HOST = 'localhost';
 const s_DEFAULT_MESSAGE_TIMEOUT = 10000;
 const s_DEFAULT_PATH = '/';
-const s_DEFAULT_RECONNECT_INTERVAL = 10000;
+const s_DEFAULT_RECONNECT_INTERVAL = 2000;
 const s_DEFAULT_SERIALIZER = JSON;
 const s_DEFAULT_SSL = false;
 const s_DEFAULT_TRIGGER = true;
@@ -17,6 +18,16 @@ const s_DEFAULT_TRIGGER = true;
  */
 export default function setSocketOptions(opts)
 {
+   if (opts === null || opts === void 0)
+   {
+      throw new TypeError(`'socketOptions' is null or undefined.`);
+   }
+
+   if (typeof opts !== 'object')
+   {
+      throw new TypeError(`'socketOptions' is not an object.`);
+   }
+
    if (opts.url !== void 0 && typeof opts.url !== 'string' && !(opts.url instanceof URL))
    {
       throw new TypeError(`'socketOptions.url' is not a string or URL.`);
@@ -89,6 +100,11 @@ export default function setSocketOptions(opts)
       throw new TypeError(`'socketOptions.autoReconnect' is not a boolean.`);
    }
 
+   if (opts.connectTimeout !== void 0 && (!Number.isInteger(opts.connectTimeout) || opts.connectTimeout < 0))
+   {
+      throw new TypeError(`'socketOptions.connectTimeout' is not an integer or < 0.`);
+   }
+
    if (opts.messageTimeout !== void 0 && (!Number.isInteger(opts.messageTimeout) || opts.messageTimeout < 0))
    {
       throw new TypeError(`'socketOptions.messageTimeout' is not an integer or < 0.`);
@@ -102,6 +118,7 @@ export default function setSocketOptions(opts)
 
    opts.autoConnect = typeof opts.autoConnect === 'boolean' ? opts.autoConnect : s_DEFAULT_AUTO_CONNECT;
    opts.autoReconnect = typeof opts.autoReconnect === 'boolean' ? opts.autoReconnect : s_DEFAULT_AUTO_RECONNECT;
+   opts.connectTimeout = opts.connectTimeout || s_DEFAULT_CONNECT_TIMEOUT;
    opts.messageTimeout = opts.messageTimeout || s_DEFAULT_MESSAGE_TIMEOUT;
    opts.reconnectInterval = opts.reconnectInterval || s_DEFAULT_RECONNECT_INTERVAL;
 
@@ -142,6 +159,7 @@ export default function setSocketOptions(opts)
       serializer: opts.serializer,
       autoConnect: opts.autoConnect,
       autoReconnect: opts.autoReconnect,
+      connectTimeout: opts.connectTimeout,
       messageTimeout: opts.messageTimeout,
       reconnectInterval: opts.reconnectInterval,
       protocol: opts.protocol,

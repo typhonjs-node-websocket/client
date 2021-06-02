@@ -2,9 +2,10 @@
  * @param {object}                        opts - Test options
  * @param {import('../../../../types')}   opts.Module - Module to test
  * @param {object}                        opts.data - Extra test data.
+ * @param {object}                        opts.env - Test environment variables
  * @param {object}                        opts.chai - Chai
  */
-export function run({ Module, data, chai })
+export function run({ Module, data, env, chai })
 {
    const { expect } = chai;
 
@@ -12,8 +13,52 @@ export function run({ Module, data, chai })
 
    describe(`API Errors (${data.scopedName}):`, () =>
    {
+      describe('connect:', () =>
+      {
+         it(`'timeout' must be a positive integer.`, async () =>
+         {
+            const socket = new WSEventbus({ port: 8001 });
+
+            await expect(socket.connect(null)).to.be.rejectedWith(TypeError, `Cannot read property 'timeout' of null`);
+         });
+
+         it(`'timeout' must be a positive integer. (< 0)`, async () =>
+         {
+            const socket = new WSEventbus({ port: 8001 });
+
+            await expect(socket.connect({ timeout: -1 })).to.be.rejectedWith(TypeError,
+             `'timeout' must be a positive integer.`);
+         });
+
+         it(`'timeout' must be a positive integer. (bad type)`, async () =>
+         {
+            const socket = new WSEventbus({ port: 8001 });
+
+            await expect(socket.connect({ timeout: false })).to.be.rejectedWith(TypeError,
+             `'timeout' must be a positive integer.`);
+         });
+      });
+
       describe('setSocketOptions:', () =>
       {
+         it(`'socketOptions' is null or undefined.`, () =>
+         {
+            expect(() => new WSEventbus(null)).to.throw(TypeError,
+             `'socketOptions' is null or undefined.`);
+         });
+
+         it(`'socketOptions' is null or undefined.`, () =>
+         {
+            expect(() => new WSEventbus(void 0)).to.throw(TypeError,
+             `'socketOptions' is null or undefined.`);
+         });
+
+         it(`'socketOptions' is not an object.`, () =>
+         {
+            expect(() => new WSEventbus(false)).to.throw(TypeError,
+             `'socketOptions' is not an object.`);
+         });
+
          it(`'socketOptions.url' is not a string or URL.`, () =>
          {
             expect(() => new WSEventbus({ url: false })).to.throw(TypeError,
@@ -98,6 +143,18 @@ export function run({ Module, data, chai })
              `'socketOptions.autoReconnect' is not a boolean.`);
          });
 
+         it(`'socketOptions.connectTimeout' is not an integer or < 0. (not number)`, () =>
+         {
+            expect(() => new WSEventbus({ port: 0, connectTimeout: false })).to.throw(TypeError,
+             `'socketOptions.connectTimeout' is not an integer or < 0.`);
+         });
+
+         it(`'socketOptions.connectTimeout' is not an integer or < 0. (< 0)`, () =>
+         {
+            expect(() => new WSEventbus({ port: 0, connectTimeout: -1 })).to.throw(TypeError,
+             `'socketOptions.connectTimeout' is not an integer or < 0.`);
+         });
+
          it(`'socketOptions.messageTimeout' is not an integer or < 0. (not number)`, () =>
          {
             expect(() => new WSEventbus({ port: 0, messageTimeout: false })).to.throw(TypeError,
@@ -140,5 +197,26 @@ export function run({ Module, data, chai })
              `'socketOptions.trigger' is not a boolean.`);
          });
       });
+
+      if (env.isNode)
+      {
+         describe('wsOptions', () =>
+         {
+            it(`'wsOptions' is not an object.`, () =>
+            {
+               expect(() => new WSEventbus({ port: 8001 }, false)).to.throw(TypeError, `'wsOptions' is not an object.`);
+            });
+
+            it(`'wsOptions' is not an object. (reconnect)`, async () =>
+            {
+               const socket = new WSEventbus({ port: 8001 });
+
+               await socket.connect();
+
+               await expect(socket.reconnect({ wsOptions: false })).to.be.rejectedWith(TypeError,
+                `'wsOptions' is not an object.`);
+            });
+         });
+      }
    });
 }

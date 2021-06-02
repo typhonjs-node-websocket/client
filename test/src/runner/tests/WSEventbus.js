@@ -7,7 +7,7 @@
  */
 export function run({ Module, data, env, chai })
 {
-   const { assert } = chai;
+   const { assert, expect } = chai;
 
    const WSEventbus = Module.default;
 
@@ -42,6 +42,17 @@ export function run({ Module, data, env, chai })
             socket.on('socket:close', () => { done(); });
          });
 
+         it('socket:error (bad subprotocol)', (done) =>
+         {
+            socket = new WSEventbus(options({ protocol: 'foobar' }));
+            socket.connect();
+            socket.on('socket:error', (event) =>
+            {
+               assert.strictEqual(event.type, 'error');
+               done();
+            });
+         });
+
          it('socket:message:in (object)', (done) =>
          {
             socket.connect();
@@ -72,6 +83,18 @@ export function run({ Module, data, env, chai })
                assert.strictEqual(view.getInt8(1), 2);
                assert.strictEqual(view.getInt8(2), 3);
 
+               done();
+            });
+         });
+
+         it('socket:message:in (not JSON)', (done) =>
+         {
+            socket.connect();
+            socket.on('socket:open', () => socket.send({ msg: 'not-json' }));
+            socket.on('socket:message:in', (data) =>
+            {
+               assert.isString(data);
+               assert.strictEqual(data, 'Not JSON');
                done();
             });
          });
@@ -208,6 +231,50 @@ export function run({ Module, data, env, chai })
             socket.disconnect();
          });
 
+         it('connect (multiple times)', async () =>
+         {
+            socket = new WSEventbus(options());
+
+            await socket.connect();
+            await expect(socket.connect()).to.be.rejectedWith('WSEventbus [connect] already created WebSocket.');
+         });
+
+         it('connect (no server)', async () =>
+         {
+            socket = new WSEventbus({ port: 8002 });
+
+            // The error is different for Node & browser so just check for rejection.
+            await expect(socket.connect()).to.be.rejectedWith();
+         });
+
+         it('connect (multiple times)', async () =>
+         {
+            socket = new WSEventbus(options());
+
+            socket.connect();
+            await expect(socket.connect()).to.be.rejectedWith();
+         });
+
+         it('connect / disconnect (await)', async () =>
+         {
+            socket = new WSEventbus(options());
+
+            await socket.connect();
+            await socket.disconnect();
+            await socket.connect();
+            await socket.disconnect();
+         });
+
+         it('disconnect (before connect)', async () =>
+         {
+            socket = new WSEventbus(options());
+
+            socket.connect();
+
+            // The error is different for Node & browser so just check for rejection.
+            await expect(socket.disconnect()).to.be.rejectedWith();
+         });
+
          it('get bufferedAmount', (done) =>
          {
             socket = new WSEventbus(options());
@@ -327,33 +394,35 @@ export function run({ Module, data, env, chai })
             assert.strictEqual(socket.url, 'wss://localhost:8001/');
          });
 
-         it('onerror (bad subprotocol)', (done) =>
+         it('get wsOptions', () =>
          {
-            socket = new WSEventbus(options({ protocol: 'foobar' }));
-            socket.connect();
-            socket.on('socket:error', (event) =>
-            {
-               assert.strictEqual(event.type, 'error');
-               done();
-            });
+            const wsOptions = { test: true };
+            socket = new WSEventbus(options(), wsOptions);
+
+            // wsOptions is only available on Node / browser does not set it.
+            assert.deepEqual(socket.wsOptions, env.isNode ? wsOptions : void 0);
          });
 
-         it('onmessage (not JSON)', (done) =>
+         it('reconnect (new path / wsOptions)', async () =>
          {
+            const wsOptions = { test: true };
             socket = new WSEventbus(options());
-            socket.connect();
-            socket.on('socket:open', () => socket.send({ msg: 'not-json' }));
-            socket.on('socket:message:in', (data) =>
-            {
-               assert.isString(data);
-               assert.strictEqual(data, 'Not JSON');
-               done();
-            });
+
+            await socket.connect();
+
+            assert.strictEqual(socket.url, 'ws://localhost:8001/');
+
+            await socket.reconnect({ socketOptions: options({ path: 'test' }), wsOptions });
+
+            assert.strictEqual(socket.url, 'ws://localhost:8001/test');
+
+            // wsOptions is only available on Node / browser does not set it.
+            assert.deepEqual(socket.wsOptions, env.isNode ? wsOptions : void 0);
          });
 
          if (env.isNode)
          {
-            it('wsImplOptions (empty)', (done) =>
+            it('wsOptions (empty)', (done) =>
             {
                socket = new WSEventbus(options({ autoConnect: true }), {});
                socket.on('socket:open', () => done());

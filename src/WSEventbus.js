@@ -47,19 +47,33 @@ export default class WSEventbus extends Eventbus
    #WebSocketCtor;
 
    /**
+    * Some WebSocket implementations may take an implementation specific options object as a third parameter.
+    *
+    * @type {object}
+    */
+   #wsOptions;
+
+   /**
     * Creates the socket.
     *
-    * @param {Function|WebSocket}   WebSocketCtor - The constructor for the WebSocket implementation.
+    * @param {Function|WebSocket}                        WebSocketCtor - The constructor for the WebSocket
+    *                                                                    implementation.
     *
-    * @param {object}               socketOptions - The options hash generated from `setSocketOptions` defining the
-    *                                               socket configuration.
+    * @param {NewSocketOptionsURL|NewSocketOptionsParts} socketOptions - The options hash generated from
+    *                                                                    `setSocketOptions` defining the socket
+    *                                                                    configuration.
     *
-    * @param {object}               [wsImplOptions] - Some WebSocket implementations may take an implementation specific
-    *                                                 options object as a third parameter.
+    * @param {object}                                    [wsOptions] - On Node `ws` is the WebSocket implementation.
+    *                                                                  This object is passed to the `ws` WebSocket.
     */
-   constructor(WebSocketCtor, socketOptions = {}, wsImplOptions = void 0)
+   constructor(WebSocketCtor, socketOptions, wsOptions = void 0)
    {
       super();
+
+      if (wsOptions !== void 0 && typeof wsOptions !== 'object')
+      {
+         throw new TypeError(`'wsOptions' is not an object.`);
+      }
 
       this.#WebSocketCtor = WebSocketCtor;
 
@@ -71,13 +85,7 @@ export default class WSEventbus extends Eventbus
          else { return false; }
       });
 
-      /**
-       * Some WebSocket implementations may take an implementation specific options object as a third parameter.
-       *
-       * @type {Object}
-       * @protected
-       */
-      this._wsImplOptions = wsImplOptions;
+      this.#wsOptions = wsOptions;
 
       // Potentially schedule auto connection
       if (this.#socketOptions.autoConnect)
@@ -90,14 +98,30 @@ export default class WSEventbus extends Eventbus
     * The `open`, `error` and `close` events are simply proxy-ed to `_socket`. The `message` event is instead parsed
     * into a js object (if possible) and then passed as a parameter of the `message:in` event.
     *
-    * @returns {WSEventbus} This WSEventbus instance.
+    * @param {object}   options - Optional parameters.
+    *
+    * @param {number}   options.timeout - Indicates a timeout in ms for connection attempt.
+    *
+    * @returns {Promise<void|object>} A Promise resolved when connected or rejected with an error / timeout.
     */
-   connect()
+   async connect({ timeout = this.socketOptions.connectTimeout } = {})
    {
-      if (this._wsImplOptions !== void 0)
+      if (!Number.isInteger(timeout) || timeout < 0)
       {
-         this.#socket = new this.#WebSocketCtor(this.url, this.#socketOptions.protocol,
-          this._wsImplOptions);
+         throw new TypeError(`'timeout' must be a positive integer.`);
+      }
+
+      if (this.#socket)
+      {
+         return Promise.reject({
+            message: 'WSEventbus [connect] already created WebSocket.',
+            type: 'error'
+         });
+      }
+
+      if (this.#wsOptions !== void 0)
+      {
+         this.#socket = new this.#WebSocketCtor(this.url, this.#socketOptions.protocol, this.#wsOptions);
       }
       else
       {
@@ -158,30 +182,78 @@ export default class WSEventbus extends Eventbus
          this.#queue.process();
       };
 
-      return this;
+      return new Promise((resolve, reject) =>
+      {
+         const onTimeout = setTimeout(() =>
+         {
+            reject({ message: 'WSEventbus [connect] timed out.', type: 'error' });
+         }, timeout);
+
+         const onError = (error) =>
+         {
+            reject(error);
+         }
+
+         const onOpen = () =>
+         {
+            clearTimeout(onTimeout);
+
+            if (this.#socket)
+            {
+               this.#socket.removeEventListener('error', onOpen);
+               this.#socket.removeEventListener('error', onError);
+            }
+
+            resolve();
+         }
+
+         this.#socket.addEventListener('open', onOpen);
+         this.#socket.addEventListener('error', onError);
+      });
    }
 
    /**
     * Disconnects / closes the socket.
     *
-    * @param {number}   [code] - A numeric value indicating the status code explaining why the connection is being
-    *                            closed. If this parameter is not specified, a default value of 1005 is assumed. See
-    *                            the list of status codes of CloseEvent for permitted values.
+    * @param {object}   options - Optional parameters.
     *
-    * @param {string}   [reason] - A human-readable string explaining why the connection is closing. This string must be
-    *                              no longer than 123 bytes of UTF-8 text (not characters).
+    * @param {number}   [options.code] - A numeric value indicating the status code explaining why the connection is
+    *                                    being closed. If this parameter is not specified, a default value of 1005
+    *                                    is assumed. See the list of status codes of CloseEvent for permitted values.
     *
-    * @returns {WSEventbus} This WSEventbus instance.
+    * @param {string}   [options.reason] - A human-readable string explaining why the connection is closing. This string
+    *                                      must be no longer than 123 bytes of UTF-8 text (not characters).
+    *
+    * @see https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#status_codes
+    *
+    * @returns {Promise<void|object>} A Promise that resolves when socket is closed or rejected with an error.
     */
-   disconnect(code, reason)
+   async disconnect({ code, reason } = {})
    {
-      if (this.#socket) { this.#socket.close(code, reason); }
+      let promise;
 
-      this.#queue.empty();
+      if (this.#socket)
+      {
+         promise = new Promise((resolve, reject) =>
+         {
+            this.#socket.addEventListener('close', () =>
+            {
+               resolve();
+            });
+            this.#socket.addEventListener('error', (error) =>
+            {
+               reject(error);
+            });
+         })
+
+         this.#socket.close(code, reason);
+      }
 
       this.#connected = false;
 
-      return this;
+      this.#queue.empty();
+
+      return promise;
    }
 
    get bufferedAmount() { return this.#socket ? this.#socket.bufferedAmount : 0; }
@@ -200,6 +272,8 @@ export default class WSEventbus extends Eventbus
 
    get url() { return this.#socket ? this.#socket.url : this.#socketOptions.url; }
 
+   get wsOptions() { return this.#wsOptions; }
+
    onSocketClose() {}
 
    /**
@@ -213,6 +287,54 @@ export default class WSEventbus extends Eventbus
    onSocketMessage(data) {}
 
    onSocketOpen() {}
+
+   /**
+    * Reconnects the socket with potentially new socket options. First disconnects if currently connected.
+    *
+    * @param {object}   options - Optional parameters.
+    *
+    * @param {NewSocketOptionsURL|NewSocketOptionsParts} [options.socketOptions] - The options hash generated from
+    *                                                            `setSocketOptions` defining the socket configuration.
+    *
+    * @param {object}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed to
+    *                                         the `ws` WebSocket.
+    *
+    * @param {number}   [options.code=1000] - A numeric value indicating the status code explaining why the
+    *                           connection is being closed. If this parameter is not specified, a default value of 1000
+    *                           is assumed indicating normal closure. See the list of status codes of CloseEvent for
+    *                           permitted values.
+    *
+    * @param {string}   [options.reason='reconnecting'] - A human-readable string explaining why the connection is
+    *                           closing. This string must be no longer than 123 bytes of UTF-8 text (not characters).
+    *
+    * @param {number}   [options.timeout=5000] - Indicates a timeout in ms for connection attempt.
+    *
+    * @see https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#status_codes
+    * @see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options
+    *
+    * @returns {Promise<void|object>} A Promise resolved when reconnected or rejected with an error / timeout.
+    */
+   async reconnect({ socketOptions = void 0, wsOptions = void 0, code = 1000, reason = 'reconnecting', timeout } = {})
+   {
+      if (socketOptions !== void 0)
+      {
+         this.#socketOptions = setSocketOptions(socketOptions);
+      }
+
+      if (wsOptions !== void 0 && typeof wsOptions !== 'object')
+      {
+         throw new TypeError(`'wsOptions' is not an object.`);
+      }
+
+      if (wsOptions !== void 0)
+      {
+         this.#wsOptions = wsOptions;
+      }
+
+      await this.disconnect({ code, reason });
+
+      return this.connect({ timeout });
+   }
 
    /**
     * Sends an object over the socket.
