@@ -163,6 +163,158 @@ type ClientOptions = {
      */
     trigger: boolean;
 };
+/**
+ * - Defines the options for a WebSocket client. The
+ *                                                 address is specified as an URL or by parts plus additional options.
+ */
+type NewClientOptions = ClientOptionsURL | ClientOptionsParts;
+/**
+ * - Defines the base `ws` options for Node WebSocket client.
+ */
+type WSOptionsBase = {
+    /**
+     * - Whether or not to follow redirects.
+     */
+    followRedirects?: boolean;
+    /**
+     * - Timeout in milliseconds for the handshake request. This is reset after every
+     * redirection.
+     */
+    handshakeTimeout?: number;
+    /**
+     * The maximum number of redirects allowed.
+     */
+    maxRedirects?: number;
+    /**
+     * - Enable / disable per message-deflate.
+     */
+    perMessageDeflate?: boolean | object;
+    /**
+     * - Value of the Sec-WebSocket-Version header.
+     */
+    protocolVersion?: number;
+    /**
+     * - Value of the Origin or Sec-WebSocket-Origin header depending on the protocolVersion.
+     */
+    origin?: string;
+    /**
+     * - The maximum allowed message size in bytes.
+     */
+    maxPayload?: number;
+};
+/**
+ * - Defines the options for Node HTTP request.
+ */
+type HTTPRequest = {
+    /**
+     * - Controls Agent behavior. Possible values:
+     * undefined (default): use http.globalAgent for this host and port.
+     * Agent object (http.Agent): explicitly use the passed in Agent.
+     * false: causes a new Agent with default values to be used.
+     */
+    agent?: object | boolean;
+    /**
+     * - Basic authentication i.e. 'user:password' to compute an Authorization header.
+     */
+    auth?: string;
+    /**
+     * - A function that produces a socket / stream to use for the request when the
+     * agent option is not used. This can be used to avoid creating a custom Agent class just to override the default
+     * createConnection function. See agent.createConnection() for more details. Any Duplex stream is a valid return value.
+     */
+    createConnection?: Function;
+    /**
+     * - Default port for the protocol. Default: agent.defaultPort if an Agent is used,
+     * else undefined.
+     */
+    defaultPort?: number;
+    /**
+     * - IP address family to use when resolving host or hostname. Valid values are 4 or 6.
+     * When unspecified, both IP v4 and v6 will be used.
+     */
+    family?: number;
+    /**
+     * - An object containing request headers.
+     */
+    headers?: any;
+    /**
+     * - Optional dns.lookup() hints.
+     */
+    hints?: number;
+    /**
+     * -  A domain name or IP address of the server to issue the request to.
+     */
+    host?: string;
+    /**
+     * - Alias for host. To support url.parse(), hostname will be used if both host and
+     * hostname are specified.
+     */
+    hostname?: string;
+    /**
+     * - Use an insecure HTTP parser that accepts invalid HTTP headers when
+     * true. Using the insecure parser should be avoided. See --insecure-http-parser for more information.
+     */
+    insecureHTTPParser?: boolean;
+    /**
+     * - Local interface to bind for network connections.
+     */
+    localAddress?: string;
+    /**
+     * - Local port to connect from.
+     */
+    localPort?: number;
+    /**
+     * - Custom lookup function. Default: dns.lookup().
+     */
+    lookup?: Function;
+    /**
+     * - Optionally overrides the value of --max-http-header-size for requests
+     * received from the server, i.e. the maximum length of response headers in bytes. Default: 16384 (16KB).
+     */
+    maxHeaderSize?: number;
+    /**
+     * - A string specifying the HTTP request method.
+     */
+    method?: string;
+    /**
+     * - Request path. Should include query string if any. E.G. '/index.html?page=12'. An
+     * exception is thrown when the request path contains illegal characters. Currently, only spaces are rejected but
+     * that may change in the future. Default: '/'.
+     */
+    path?: string;
+    /**
+     * - Port of remote server. Default: defaultPort if set, else 80.
+     */
+    port?: number;
+    /**
+     * - Protocol to use.
+     */
+    protocol?: string;
+    /**
+     * - Specifies whether or not to automatically add the Host header.
+     */
+    setHost?: boolean;
+    /**
+     * - Unix Domain Socket (cannot be used if one of host or port is specified, those
+     * specify a TCP Socket).
+     */
+    socketPath?: string;
+    /**
+     * - A number specifying the socket timeout in milliseconds. This will set the timeout
+     * before the socket is connected.
+     */
+    timeout?: number;
+    /**
+     * - An AbortSignal that may be used to abort an ongoing request.
+     */
+    signal?: AbortSignal;
+};
+/**
+ * - Defines the `ws` options for Node WebSocket client. Any other
+ * option allowed in http.request() or https.request(). Options given do not have any effect if parsed from the URL
+ * given with the address parameter.
+ */
+type WSOptions = WSOptionsBase & HTTPRequest;
 
 /**
  * Provides a single consumer queue.
@@ -225,15 +377,14 @@ declare class WSEventbus$1 {
     /**
      * Creates the socket.
      *
-     * @param {Function|WebSocket}                  WebSocketCtor - The constructor for the WebSocket implementation.
+     * @param {Function|WebSocket}   WebSocketCtor - The constructor for the WebSocket implementation.
      *
-     * @param {ClientOptionsURL|ClientOptionsParts} clientOptions - Defines the options for a WebSocket client by
-     *                                                              individual parts or complete URL.
+     * @param {NewClientOptions}     clientOptions - Defines the options for a WebSocket client.
      *
-     * @param {object}                              [wsOptions] - On Node `ws` is the WebSocket implementation. This
-     *                                                            object is passed to the `ws` WebSocket.
+     * @param {WSOptions}            [wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+     *                                             passed to the `ws` WebSocket.
      */
-    constructor(WebSocketCtor: Function | WebSocket, clientOptions: ClientOptionsURL | ClientOptionsParts, wsOptions?: object);
+    constructor(WebSocketCtor: Function | WebSocket, clientOptions: NewClientOptions, wsOptions?: WSOptions);
     /**
      * The `open`, `error` and `close` events are simply proxy-ed to `_socket`. The `message` event is instead parsed
      * into a js object (if possible) and then passed as a parameter of the `message:in` event.
@@ -267,45 +418,103 @@ declare class WSEventbus$1 {
         code?: number;
         reason?: string;
     }): Promise<void | object>;
+    /**
+     * Read-only property returns the number of bytes of data that have been queued using calls to send() but not yet
+     * transmitted to the network. This value resets to zero once all queued data has been sent. This value does not
+     * reset to zero when the connection is closed; if you keep calling send(), this will continue to climb.
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/bufferedAmount
+     * @returns {number} Current buffered amount.
+     */
     get bufferedAmount(): number;
+    /**
+     * @returns {ClientOptions} Current client options
+     */
     get clientOptions(): ClientOptions;
+    /**
+     * @returns {boolean} Current connected status.
+     */
     get connected(): boolean;
+    /**
+     * Read-only property returns the extensions selected by the server. This is currently only the empty string or a
+     * list of extensions as negotiated by the connection.
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/extensions
+     * @returns {string} Server extensions.
+     */
     get extensions(): string;
+    /**
+     * Read-only property returns the name of the sub-protocol the server selected; this will be one of the strings
+     * specified in the protocols parameter when creating the WebSocket object, or the empty string if no connection is
+     * established.
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/protocol
+     * @returns {string} Server sub-protocol.
+     */
     get protocol(): string;
+    /**
+     * @returns {Queue} The message queue.
+     */
     get queue(): Queue;
+    /**
+     * Read-only property returns the current state of the WebSocket connection.
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/readyState
+     * @returns {number} Current state of WebSocket.
+     */
     get readyState(): number;
+    /**
+     * Read-only property returns the absolute URL of the WebSocket as resolved by the constructor.
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/url
+     * @returns {string} Absolute URL of the WebSocket.
+     */
     get url(): string;
-    get wsOptions(): any;
+    /**
+     * Any 'ws' options set for Node WebSocket implementation.
+     *
+     * @returns {WSOptions}
+     */
+    get wsOptions(): WSOptions;
+    /**
+     * 'onclose' direct method callback.
+     */
     onSocketClose(): void;
     /**
+     * 'onerror' direct method callback.
+     *
      * @param {object}   error - The error event.
      */
     onSocketError(error: object): void;
     /**
+     * 'onmessage' direct method callback.
+     *
      * @param {*}  data - The data received.
      */
     onSocketMessage(data: any): void;
+    /**
+     * 'onopen' direct method callback.
+     */
     onSocketOpen(): void;
     /**
-     * Reconnects the socket with potentially new socket options. First disconnects if currently connected.
+     * Reconnects the socket with potentially new client options. First disconnects if currently connected.
      *
-     * @param {object}   options - Optional parameters.
+     * @param {object}            options - Optional parameters.
      *
-     * @param {ClientOptionsURL|ClientOptionsParts} [options.clientOptions] - Defines the options for a WebSocket client
-     *                                                                        by individual parts or complete URL.
+     * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
      *
-     * @param {object}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed to
-     *                                         the `ws` WebSocket.
+     * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+     *                                                  passed to the `ws` WebSocket.
      *
-     * @param {number}   [options.code=1000] - A numeric value indicating the status code explaining why the
-     *                           connection is being closed. If this parameter is not specified, a default value of 1000
-     *                           is assumed indicating normal closure. See the list of status codes of CloseEvent for
-     *                           permitted values.
+     * @param {number}            [options.code=1000] - A numeric value indicating the status code explaining why the
+     *                            connection is being closed. If this parameter is not specified, a default value of 1000
+     *                            is assumed indicating normal closure. See the list of status codes of CloseEvent for
+     *                            permitted values.
      *
-     * @param {string}   [options.reason='reconnecting'] - A human-readable string explaining why the connection is
-     *                           closing. This string must be no longer than 123 bytes of UTF-8 text (not characters).
+     * @param {string}            [options.reason='reconnecting'] - A human-readable string explaining why the connection
+     *                            is closing. This string must be no longer than 123 bytes of UTF-8 text (not characters).
      *
-     * @param {number}   [options.timeout=5000] - Indicates a timeout in ms for connection attempt.
+     * @param {number}            [options.timeout=5000] - Indicates a timeout in ms for connection attempt.
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#status_codes
      * @see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options
@@ -313,8 +522,8 @@ declare class WSEventbus$1 {
      * @returns {Promise<void|object>} A Promise resolved when reconnected or rejected with an error / timeout.
      */
     reconnect({ clientOptions, wsOptions, code, reason, timeout }?: {
-        clientOptions?: ClientOptionsURL | ClientOptionsParts;
-        wsOptions?: object;
+        clientOptions?: NewClientOptions;
+        wsOptions?: WSOptions;
         code?: number;
         reason?: string;
         timeout?: number;
@@ -340,15 +549,14 @@ declare class WSEventbus$1 {
 
 declare class WSEventbus extends WSEventbus$1 {
     /**
-     * @param {ClientOptionsURL|ClientOptionsParts}  clientOptions - Defines the options for a WebSocket client by
-     *                                                               individual parts or complete URL.
+     * @param {NewClientOptions}  clientOptions - Defines the options for a WebSocket client.
      *
-     * @param {object}                               [wsOptions] - On Node `ws` is the WebSocket implementation. This
-     *                                                             object is passed to the `ws` WebSocket as options.
+     * @param {WSOptions}         [wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed to
+     *                                          the `ws` WebSocket as options.
      *
      * @see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options
      */
-    constructor(clientOptions: ClientOptionsURL | ClientOptionsParts, wsOptions?: object);
+    constructor(clientOptions: NewClientOptions, wsOptions?: WSOptions);
     #private;
 }
 
