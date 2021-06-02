@@ -1,12 +1,30 @@
+/**
+ * @param {object}                        opts - Test options
+ * @param {import('../../../../types')}   opts.Module - Module to test
+ * @param {object}                        opts.data - Extra test data.
+ * @param {object}                        opts.chai - Chai
+ */
 export function run({ Module, data, chai })
 {
    const { expect } = chai;
+
    const WSEventbus = Module.default;
 
    describe(`API Errors (${data.scopedName}):`, () =>
    {
       describe('setSocketOptions:', () =>
       {
+         it(`'opts.url' is not a string or URL.`, () =>
+         {
+            expect(() => new WSEventbus({ url: false })).to.throw(TypeError, `'opts.url' is not a string or URL.`);
+         });
+
+         it(`'opts.url' is not a WebSocket URL.`, () =>
+         {
+            expect(() => new WSEventbus({ url: 'https://bad.com' })).to.throw(TypeError,
+             `'opts.url' is not a WebSocket URL.`);
+         });
+
          it(`'opts.port' is not an integer between [0-65535]. (not integer)`, () =>
          {
             expect(() => new WSEventbus({ port: false })).to.throw(TypeError,

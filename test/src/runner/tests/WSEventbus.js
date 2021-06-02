@@ -1,9 +1,17 @@
+/**
+ * @param {object}                        opts - Test options
+ * @param {import('../../../../types')}   opts.Module - Module to test
+ * @param {object}                        opts.data - Extra test data.
+ * @param {object}                        opts.env - Test environment variables
+ * @param {object}                        opts.chai - Chai
+ */
 export function run({ Module, data, env, chai })
 {
    const { assert } = chai;
+
    const WSEventbus = Module.default;
 
-   const options = (data = {}) => Object.assign({ port: 8001 }, data);
+   const options = (config = {}) => Object.assign({ port: 8001 }, config);
 
    describe(`WSEventbus (${data.scopedName}):`, () =>
    {
@@ -166,8 +174,10 @@ export function run({ Module, data, env, chai })
 
             socket.once('socket:open', () => socket.send({ msg: 'close' }));
 
-            socket.once('socket:close', () => {
-               socket.once('socket:open', () => {
+            socket.once('socket:close', () =>
+            {
+               socket.once('socket:open', () =>
+               {
                   socket.socketOptions.autoReconnect = false;
                   done();
                });
@@ -206,7 +216,8 @@ export function run({ Module, data, env, chai })
 
             socket.connect();
 
-            socket.on('socket:open', () => {
+            socket.on('socket:open', () =>
+            {
                assert.strictEqual(socket.bufferedAmount, 0);
                done();
             });
@@ -220,16 +231,11 @@ export function run({ Module, data, env, chai })
 
             socket.connect();
 
-            socket.on('socket:open', () => {
+            socket.on('socket:open', () =>
+            {
                assert.isTrue(socket.connected);
                done();
             });
-         });
-
-         it('get endpoint (ssl)', () =>
-         {
-            socket = new WSEventbus(options({ ssl: true }));
-            assert.strictEqual(socket.endpoint, 'wss://localhost:8001/');
          });
 
          it('get extensions', (done) =>
@@ -240,7 +246,8 @@ export function run({ Module, data, env, chai })
 
             socket.connect();
 
-            socket.on('socket:open', () => {
+            socket.on('socket:open', () =>
+            {
                assert.strictEqual(socket.extensions, '');
                done();
             });
@@ -254,7 +261,8 @@ export function run({ Module, data, env, chai })
 
             socket.connect();
 
-            socket.on('socket:open', () => {
+            socket.on('socket:open', () =>
+            {
                assert.strictEqual(socket.protocol, '');
                done();
             });
@@ -290,18 +298,33 @@ export function run({ Module, data, env, chai })
             assert.deepEqual(socket.socketOptions, data.setSocketOptions(options()));
          });
 
+         it('socketOptions', () =>
+         {
+            socket = new WSEventbus({ url: 'ws://localhost:8001' });
+            const socket2 = new WSEventbus({ port: 8001 });
+
+            assert.deepEqual(socket.socketOptions, socket2.socketOptions);
+         });
+
          it('get url', (done) =>
          {
             socket = new WSEventbus(options());
 
-            assert.strictEqual(socket.url, '');
+            assert.strictEqual(socket.url, 'ws://localhost:8001/');
 
             socket.connect();
 
-            socket.on('socket:open', () => {
+            socket.on('socket:open', () =>
+            {
                assert.strictEqual(socket.url, 'ws://localhost:8001/');
                done();
             });
+         });
+
+         it('get url (ssl)', () =>
+         {
+            socket = new WSEventbus(options({ ssl: true }));
+            assert.strictEqual(socket.url, 'wss://localhost:8001/');
          });
 
          it('onerror (bad subprotocol)', (done) =>
@@ -348,7 +371,7 @@ export function run({ Module, data, env, chai })
 
                onSocketClose() { done(); }
 
-               onSocketOpen() { this.send({ msg: 'echo', id: 5 }) }
+               onSocketOpen() { this.send({ msg: 'echo', id: 5 }); }
 
                onSocketMessage(data)
                {
