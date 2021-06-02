@@ -11,8 +11,9 @@ const s_DEFAULT_SSL = false;
 const s_DEFAULT_TRIGGER = true;
 
 /**
- * @param {ClientOptionsURL|ClientOptionsParts}  opts - Defines the options for a WebSocket client by individual
- *                                                      parts or complete URL.
+ * Parses and new client options setting default values as necessary.
+ *
+ * @param {NewClientOptions}  opts - Defines the options for a WebSocket client.
  *
  * @returns {ClientOptions} The parsed client options object.
  */

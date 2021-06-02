@@ -49,20 +49,19 @@ export default class WSEventbus extends Eventbus
    /**
     * Some WebSocket implementations may take an implementation specific options object as a third parameter.
     *
-    * @type {object}
+    * @type {WSOptions}
     */
    #wsOptions;
 
    /**
     * Creates the socket.
     *
-    * @param {Function|WebSocket}                  WebSocketCtor - The constructor for the WebSocket implementation.
+    * @param {Function|WebSocket}   WebSocketCtor - The constructor for the WebSocket implementation.
     *
-    * @param {ClientOptionsURL|ClientOptionsParts} clientOptions - Defines the options for a WebSocket client by
-    *                                                              individual parts or complete URL.
+    * @param {NewClientOptions}     clientOptions - Defines the options for a WebSocket client.
     *
-    * @param {object}                              [wsOptions] - On Node `ws` is the WebSocket implementation. This
-    *                                                            object is passed to the `ws` WebSocket.
+    * @param {WSOptions}            [wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+    *                                             passed to the `ws` WebSocket.
     */
    constructor(WebSocketCtor, clientOptions, wsOptions = void 0)
    {
@@ -254,58 +253,116 @@ export default class WSEventbus extends Eventbus
       return promise;
    }
 
+   /**
+    * Read-only property returns the number of bytes of data that have been queued using calls to send() but not yet
+    * transmitted to the network. This value resets to zero once all queued data has been sent. This value does not
+    * reset to zero when the connection is closed; if you keep calling send(), this will continue to climb.
+    *
+    * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/bufferedAmount
+    * @returns {number} Current buffered amount.
+    */
    get bufferedAmount() { return this.#socket ? this.#socket.bufferedAmount : 0; }
 
+   /**
+    * @returns {ClientOptions} Current client options
+    */
    get clientOptions() { return this.#clientOptions; }
 
+   /**
+    * @returns {boolean} Current connected status.
+    */
    get connected() { return this.#connected; }
 
+   /**
+    * Read-only property returns the extensions selected by the server. This is currently only the empty string or a
+    * list of extensions as negotiated by the connection.
+    *
+    * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/extensions
+    * @returns {string} Server extensions.
+    */
    get extensions() { return this.#socket ? this.#socket.extensions : ''; }
 
+   /**
+    * Read-only property returns the name of the sub-protocol the server selected; this will be one of the strings
+    * specified in the protocols parameter when creating the WebSocket object, or the empty string if no connection is
+    * established.
+    *
+    * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/protocol
+    * @returns {string} Server sub-protocol.
+    */
    get protocol() { return this.#socket ? this.#socket.protocol : ''; }
 
+   /**
+    * @returns {Queue} The message queue.
+    */
    get queue() { return this.#queue; }
 
+   /**
+    * Read-only property returns the current state of the WebSocket connection.
+    *
+    * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/readyState
+    * @returns {number} Current state of WebSocket.
+    */
    get readyState() { return this.#socket ? this.#socket.readyState : 3; }
 
+   /**
+    * Read-only property returns the absolute URL of the WebSocket as resolved by the constructor.
+    *
+    * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/url
+    * @returns {string} Absolute URL of the WebSocket.
+    */
    get url() { return this.#socket ? this.#socket.url : this.#clientOptions.url; }
 
+   /**
+    * Any 'ws' options set for Node WebSocket implementation.
+    *
+    * @returns {WSOptions}
+    */
    get wsOptions() { return this.#wsOptions; }
 
+   /**
+    * 'onclose' direct method callback.
+    */
    onSocketClose() {}
 
    /**
+    * 'onerror' direct method callback.
+    *
     * @param {object}   error - The error event.
     */
    onSocketError(error) {}
 
    /**
+    * 'onmessage' direct method callback.
+    *
     * @param {*}  data - The data received.
     */
    onSocketMessage(data) {}
 
+   /**
+    * 'onopen' direct method callback.
+    */
    onSocketOpen() {}
 
    /**
-    * Reconnects the socket with potentially new socket options. First disconnects if currently connected.
+    * Reconnects the socket with potentially new client options. First disconnects if currently connected.
     *
-    * @param {object}   options - Optional parameters.
+    * @param {object}            options - Optional parameters.
     *
-    * @param {ClientOptionsURL|ClientOptionsParts} [options.clientOptions] - Defines the options for a WebSocket client
-    *                                                                        by individual parts or complete URL.
+    * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
     *
-    * @param {object}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed to
-    *                                         the `ws` WebSocket.
+    * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+    *                                                  passed to the `ws` WebSocket.
     *
-    * @param {number}   [options.code=1000] - A numeric value indicating the status code explaining why the
-    *                           connection is being closed. If this parameter is not specified, a default value of 1000
-    *                           is assumed indicating normal closure. See the list of status codes of CloseEvent for
-    *                           permitted values.
+    * @param {number}            [options.code=1000] - A numeric value indicating the status code explaining why the
+    *                            connection is being closed. If this parameter is not specified, a default value of 1000
+    *                            is assumed indicating normal closure. See the list of status codes of CloseEvent for
+    *                            permitted values.
     *
-    * @param {string}   [options.reason='reconnecting'] - A human-readable string explaining why the connection is
-    *                           closing. This string must be no longer than 123 bytes of UTF-8 text (not characters).
+    * @param {string}            [options.reason='reconnecting'] - A human-readable string explaining why the connection
+    *                            is closing. This string must be no longer than 123 bytes of UTF-8 text (not characters).
     *
-    * @param {number}   [options.timeout=5000] - Indicates a timeout in ms for connection attempt.
+    * @param {number}            [options.timeout=5000] - Indicates a timeout in ms for connection attempt.
     *
     * @see https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#status_codes
     * @see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options
