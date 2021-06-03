@@ -130,7 +130,7 @@
  * @property {number}   [family] - IP address family to use when resolving host or hostname. Valid values are 4 or 6.
  * When unspecified, both IP v4 and v6 will be used.
  *
- * @property {Object}   [headers] - An object containing request headers.
+ * @property {object}   [headers] - An object containing request headers.
  *
  * @property {number}   [hints] - Optional dns.lookup() hints.
  *
@@ -173,6 +173,7 @@
  *
  */
 
+// eslint-disable-next-line  jsdoc/valid-types
 /**
  * @typedef {WSOptionsBase & HTTPRequest} WSOptions - Defines the `ws` options for Node WebSocket client. Any other
  * option allowed in http.request() or https.request(). Options given do not have any effect if parsed from the URL

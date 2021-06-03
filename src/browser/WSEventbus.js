@@ -36,7 +36,7 @@ export default class WSEventbus extends WSSEventbus
     * @returns {Promise<void|object>} A Promise resolved when reconnected or rejected with an error / timeout.
     * @override
     */
-   async reconnect({ clientOptions = void 0, wsOptions = void 0, code = 1000, reason = 'reconnecting', timeout } = {})
+   async reconnect({ clientOptions = void 0, wsOptions = void 0, code = 1000, reason = 'reconnecting', timeout } = {})  // eslint-disable-line no-unused-vars
    {
       return super.reconnect({ clientOptions, wsOptions: void 0, code, reason, timeout });
    }
