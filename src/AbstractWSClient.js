@@ -11,7 +11,7 @@ const s_STR_EVENT_SOCKET_OPEN = 'socket:open';
 /**
  * Provides a socket connection and forwarding of data via Eventbus events.
  */
-export default class WSEventbus extends Eventbus
+export default class AbstractWSClient extends Eventbus
 {
    /**
     * The parsed client options.
@@ -58,23 +58,31 @@ export default class WSEventbus extends Eventbus
     *
     * @param {Function|WebSocket}   WebSocketCtor - The constructor for the WebSocket implementation.
     *
-    * @param {NewClientOptions}     clientOptions - Defines the options for a WebSocket client.
+    * @param {NewClientOptions}     [clientOptions] - Defines the options for a WebSocket client.
     *
     * @param {WSOptions}            [wsOptions] - On Node `ws` is the WebSocket implementation. This object is
     *                                             passed to the `ws` WebSocket.
     */
-   constructor(WebSocketCtor, clientOptions, wsOptions = void 0)
+   constructor(WebSocketCtor, clientOptions = void 0, wsOptions = void 0)
    {
       super();
+
+      this.#WebSocketCtor = WebSocketCtor;
+
+      if (clientOptions !== void 0)
+      {
+         this.#clientOptions = setClientOptions(clientOptions);
+      }
 
       if (wsOptions !== void 0 && typeof wsOptions !== 'object')
       {
          throw new TypeError(`'wsOptions' is not an object.`);
       }
 
-      this.#WebSocketCtor = WebSocketCtor;
-
-      this.#clientOptions = setClientOptions(clientOptions);
+      if (wsOptions !== void 0)
+      {
+         this.#wsOptions = wsOptions;
+      }
 
       this.#queue = new Queue((message) =>
       {
@@ -82,38 +90,72 @@ export default class WSEventbus extends Eventbus
          else { return false; }
       });
 
-      this.#wsOptions = wsOptions;
-
       // Potentially schedule auto connection
-      if (this.#clientOptions.autoConnect)
+      if (this.#clientOptions && this.#clientOptions.autoConnect)
       {
          setTimeout(this.connect.bind(this), 0);
       }
    }
 
    /**
+    * Connects the socket with potentially new client options.
+    *
     * The `open`, `error` and `close` events are simply proxy-ed to `_socket`. The `message` event is instead parsed
     * into a js object (if possible) and then passed as a parameter of the `message:in` event.
     *
-    * @param {object}   options - Optional parameters.
+    * @param {object}            options - Optional parameters.
     *
-    * @param {number}   options.timeout - Indicates a timeout in ms for connection attempt.
+    * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
+    *
+    * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+    *                                                  passed to the `ws` WebSocket.
+    *
+    * @param {number}            [options.timeout] - Indicates a timeout in ms for connection attempt.
     *
     * @returns {Promise<void|object>} A Promise resolved when connected or rejected with an error / timeout.
     */
-   async connect({ timeout = this.clientOptions.connectTimeout } = {})
+   async connect({ clientOptions = void 0, wsOptions = void 0, timeout = void 0 } = {})
    {
-      if (!Number.isInteger(timeout) || timeout < 0)
-      {
-         throw new TypeError(`'timeout' must be a positive integer.`);
-      }
-
       if (this.#socket)
       {
          return Promise.reject({
-            message: 'WSEventbus [connect] already created WebSocket.',
+            message: 'WSClient [connect] already created WebSocket.',
             type: 'error'
          });
+      }
+
+      if (clientOptions !== void 0)
+      {
+         this.#clientOptions = setClientOptions(clientOptions);
+      }
+
+      if (wsOptions !== void 0 && typeof wsOptions !== 'object')
+      {
+         throw new TypeError(`'wsOptions' is not an object.`);
+      }
+
+      if (wsOptions !== void 0)
+      {
+         this.#wsOptions = wsOptions;
+      }
+
+      if (typeof this.#clientOptions !== 'object')
+      {
+         return Promise.reject({
+            message: `WSClient [connect] 'clientOptions' has not been set.`,
+            type: 'error'
+         });
+      }
+
+      // Assign default timeout if not specified.
+      if (timeout === void 0)
+      {
+         timeout = this.clientOptions.connectTimeout;
+      }
+
+      if (!Number.isInteger(timeout) || timeout < 0)
+      {
+         throw new TypeError(`'timeout' must be a positive integer.`);
       }
 
       if (this.#wsOptions !== void 0)
@@ -183,7 +225,7 @@ export default class WSEventbus extends Eventbus
       {
          const onTimeout = setTimeout(() =>
          {
-            reject({ message: 'WSEventbus [connect] timed out.', type: 'error' });
+            reject({ message: 'WSClient [connect] timed out.', type: 'error' });
          }, timeout);
 
          const onError = (error) =>
@@ -311,7 +353,11 @@ export default class WSEventbus extends Eventbus
     * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/url
     * @returns {string} Absolute URL of the WebSocket.
     */
-   get url() { return this.#socket ? this.#socket.url : this.#clientOptions.url; }
+   get url()
+   {
+      return this.#socket ? this.#socket.url :
+       this.#clientOptions ? this.#clientOptions.url : '';
+   }
 
    /**
     * Any 'ws' options set for Node WebSocket implementation.
@@ -396,11 +442,11 @@ export default class WSEventbus extends Eventbus
     *
     * @param {object|string|Blob|ArrayBuffer|ArrayBufferView}  data - The data to send.
     *
-    * @returns {WSEventbus} This WSEventbus instance.
+    * @returns {AbstractWSClient} This WSClient instance.
     */
    send(data)
    {
-      if (this.#socket)
+      if (this.#socket && this.#clientOptions)
       {
          this.#socket.send(data.constructor === Object ? this.#clientOptions.serializer.stringify(data) : data);
       }
@@ -413,11 +459,11 @@ export default class WSEventbus extends Eventbus
     *
     * @param {Iterable<object|string|Blob|ArrayBuffer|ArrayBufferView>}  data - An array of data to send.
     *
-    * @returns {WSEventbus} This WSEventbus instance.
+    * @returns {AbstractWSClient} This WSClient instance.
     */
    sendAll(data)
    {
-      if (this.#socket)
+      if (this.#socket && this.#clientOptions)
       {
          for (const entry of data)
          {
@@ -426,5 +472,33 @@ export default class WSEventbus extends Eventbus
       }
 
       return this;
+   }
+
+   /**
+    * Sets clientOptions / wsOptions. Most useful when loading options indirectly.
+    *
+    * @param {object}            options - Optional parameters.
+    *
+    * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
+    *
+    * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+    *                                                  passed to the `ws` WebSocket.
+    */
+   setOptions({ clientOptions = void 0, wsOptions = void 0 } = {})
+   {
+      if (clientOptions !== void 0)
+      {
+         this.#clientOptions = setClientOptions(clientOptions);
+      }
+
+      if (wsOptions !== void 0 && typeof wsOptions !== 'object')
+      {
+         throw new TypeError(`'wsOptions' is not an object.`);
+      }
+
+      if (wsOptions !== void 0)
+      {
+         this.#wsOptions = wsOptions;
+      }
    }
 }
