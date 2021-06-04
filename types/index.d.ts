@@ -236,7 +236,7 @@ type HTTPRequest = {
     /**
      * - An object containing request headers.
      */
-    headers?: any;
+    headers?: object;
     /**
      * - Optional dns.lookup() hints.
      */
@@ -373,30 +373,39 @@ declare class Queue {
 /**
  * Provides a socket connection and forwarding of data via Eventbus events.
  */
-declare class WSEventbus$1 {
+declare class AbstractWSClient {
     /**
      * Creates the socket.
      *
      * @param {Function|WebSocket}   WebSocketCtor - The constructor for the WebSocket implementation.
      *
-     * @param {NewClientOptions}     clientOptions - Defines the options for a WebSocket client.
+     * @param {NewClientOptions}     [clientOptions] - Defines the options for a WebSocket client.
      *
      * @param {WSOptions}            [wsOptions] - On Node `ws` is the WebSocket implementation. This object is
      *                                             passed to the `ws` WebSocket.
      */
-    constructor(WebSocketCtor: Function | WebSocket, clientOptions: NewClientOptions, wsOptions?: WSOptions);
+    constructor(WebSocketCtor: Function | WebSocket, clientOptions?: NewClientOptions, wsOptions?: WSOptions);
     /**
+     * Connects the socket with potentially new client options.
+     *
      * The `open`, `error` and `close` events are simply proxy-ed to `_socket`. The `message` event is instead parsed
      * into a js object (if possible) and then passed as a parameter of the `message:in` event.
      *
-     * @param {object}   options - Optional parameters.
+     * @param {object}            options - Optional parameters.
      *
-     * @param {number}   options.timeout - Indicates a timeout in ms for connection attempt.
+     * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
+     *
+     * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+     *                                                  passed to the `ws` WebSocket.
+     *
+     * @param {number}            [options.timeout] - Indicates a timeout in ms for connection attempt.
      *
      * @returns {Promise<void|object>} A Promise resolved when connected or rejected with an error / timeout.
      */
-    connect({ timeout }?: {
-        timeout: number;
+    connect({ clientOptions, wsOptions, timeout }?: {
+        clientOptions?: NewClientOptions;
+        wsOptions?: WSOptions;
+        timeout?: number;
     }): Promise<void | object>;
     /**
      * Disconnects / closes the socket.
@@ -533,31 +542,48 @@ declare class WSEventbus$1 {
      *
      * @param {object|string|Blob|ArrayBuffer|ArrayBufferView}  data - The data to send.
      *
-     * @returns {WSEventbus} This WSEventbus instance.
+     * @returns {AbstractWSClient} This WSClient instance.
      */
-    send(data: object | string | Blob | ArrayBuffer | ArrayBufferView): WSEventbus$1;
+    send(data: object | string | Blob | ArrayBuffer | ArrayBufferView): AbstractWSClient;
     /**
      * Sends an object over the socket.
      *
      * @param {Iterable<object|string|Blob|ArrayBuffer|ArrayBufferView>}  data - An array of data to send.
      *
-     * @returns {WSEventbus} This WSEventbus instance.
+     * @returns {AbstractWSClient} This WSClient instance.
      */
-    sendAll(data: Iterable<object | string | Blob | ArrayBuffer | ArrayBufferView>): WSEventbus$1;
+    sendAll(data: Iterable<object | string | Blob | ArrayBuffer | ArrayBufferView>): AbstractWSClient;
+    /**
+     * Sets clientOptions / wsOptions. Most useful when loading options indirectly.
+     *
+     * @param {object}            options - Optional parameters.
+     *
+     * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
+     *
+     * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+     *                                                  passed to the `ws` WebSocket.
+     */
+    setOptions({ clientOptions, wsOptions }?: {
+        clientOptions?: NewClientOptions;
+        wsOptions?: WSOptions;
+    }): void;
     #private;
 }
 
-declare class WSEventbus extends WSEventbus$1 {
+/**
+ * Provides the Node version of WSClient.
+ */
+declare class WSClient extends AbstractWSClient {
     /**
-     * @param {NewClientOptions}  clientOptions - Defines the options for a WebSocket client.
+     * @param {NewClientOptions}  [clientOptions] - Defines the options for a WebSocket client.
      *
      * @param {WSOptions}         [wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed to
      *                                          the `ws` WebSocket as options.
      *
      * @see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options
      */
-    constructor(clientOptions: NewClientOptions, wsOptions?: WSOptions);
+    constructor(clientOptions?: NewClientOptions, wsOptions?: WSOptions);
     #private;
 }
 
-export default WSEventbus;
+export { Queue, WSClient };
