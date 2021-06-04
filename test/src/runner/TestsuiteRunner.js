@@ -1,7 +1,7 @@
 import TestsuiteRunner  from '@typhonjs-build-test/testsuite-runner';
 
-import * as APIErrors     from './tests/APIErrors.js';
-import * as WSEventbus    from './tests/WSEventbus.js';
+import * as APIErrors   from './tests/APIErrors.js';
+import * as WSClient    from './tests/WSClient.js';
 
 import setClientOptions from '../../../src/utils/setClientOptions.js';
 
@@ -11,5 +11,5 @@ const data = {
 
 export default new TestsuiteRunner({
    APIErrors,
-   WSEventbus
+   WSClient
 }, data);

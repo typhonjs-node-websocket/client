@@ -1,6 +1,6 @@
 import fs               from 'fs-extra';
 
-import * as Module      from '../../../src/node/WSEventbus.js';
+import * as Module      from '../../../src/node/index.js';
 
 import WSTestServer     from '../common/WSTestServer.js';
 import TestsuiteRunner  from '../runner/TestsuiteRunner.js';

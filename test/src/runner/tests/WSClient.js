@@ -9,11 +9,11 @@ export function run({ Module, data, env, chai })
 {
    const { assert, expect } = chai;
 
-   const WSEventbus = Module.default;
+   const { WSClient } = Module;
 
    const options = (config = {}) => Object.assign({ port: 8001 }, config);
 
-   describe(`WSEventbus (${data.scopedName}):`, () =>
+   describe(`WSClient (${data.scopedName}):`, () =>
    {
       describe(`socket events:`, () =>
       {
@@ -26,7 +26,7 @@ export function run({ Module, data, env, chai })
 
          beforeEach(() =>
          {
-            socket = new WSEventbus({ port: 8001, binaryType: 'arraybuffer' });
+            socket = new WSClient({ port: 8001, binaryType: 'arraybuffer' });
          });
 
          it('socket:open', (done) =>
@@ -44,7 +44,7 @@ export function run({ Module, data, env, chai })
 
          it('socket:error (bad subprotocol)', (done) =>
          {
-            socket = new WSEventbus(options({ protocol: 'foobar' }));
+            socket = new WSClient(options({ protocol: 'foobar' }));
             socket.connect();
             socket.on('socket:error', (event) =>
             {
@@ -185,13 +185,13 @@ export function run({ Module, data, env, chai })
 
          it('autoConnect', (done) =>
          {
-            socket = new WSEventbus(options({ autoConnect: true }));
+            socket = new WSClient(options({ autoConnect: true }));
             socket.on('socket:open', () => { done(); });
          });
 
          it('autoReconnect', (done) =>
          {
-            socket = new WSEventbus(options({ autoReconnect: true, reconnectInterval: 500 }));
+            socket = new WSClient(options({ autoReconnect: true, reconnectInterval: 500 }));
 
             socket.connect();
 
@@ -209,14 +209,14 @@ export function run({ Module, data, env, chai })
 
          it('path', (done) =>
          {
-            socket = new WSEventbus(options({ path: 'ws' }));
+            socket = new WSClient(options({ path: 'ws' }));
             socket.connect();
             socket.on('socket:open', () => { done(); });
          });
 
          it('protocol', (done) =>
          {
-            socket = new WSEventbus(options({ protocol: 'foo' }));
+            socket = new WSClient(options({ protocol: 'foo' }));
             socket.connect();
             socket.on('socket:open', () => { done(); });
          });
@@ -231,17 +231,24 @@ export function run({ Module, data, env, chai })
             socket.disconnect();
          });
 
+         it(`'clientOptions' is null or undefined.`, async () =>
+         {
+            socket = new WSClient();
+
+            await expect(socket.connect()).to.be.rejectedWith(`WSClient [connect] 'clientOptions' has not been set.`);
+         });
+
          it('connect (multiple times)', async () =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             await socket.connect();
-            await expect(socket.connect()).to.be.rejectedWith('WSEventbus [connect] already created WebSocket.');
+            await expect(socket.connect()).to.be.rejectedWith('WSClient [connect] already created WebSocket.');
          });
 
          it('connect (no server)', async () =>
          {
-            socket = new WSEventbus({ port: 8002 });
+            socket = new WSClient({ port: 8002 });
 
             // The error is different for Node & browser so just check for rejection.
             await expect(socket.connect()).to.be.rejectedWith();
@@ -249,15 +256,33 @@ export function run({ Module, data, env, chai })
 
          it('connect (multiple times)', async () =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             socket.connect();
             await expect(socket.connect()).to.be.rejectedWith();
          });
 
+         it('connect w/ options', (done) =>
+         {
+            socket = new WSClient();
+
+            socket.connect({ clientOptions: options(), wsOptions: {} });
+            socket.on('socket:open', () => { done(); });
+         });
+
+         it('connect w/ setOptions', (done) =>
+         {
+            socket = new WSClient();
+
+            socket.setOptions({ clientOptions: options(), wsOptions: {} })
+
+            socket.connect();
+            socket.on('socket:open', () => { done(); });
+         });
+
          it('connect / disconnect (await)', async () =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             await socket.connect();
             await socket.disconnect();
@@ -267,7 +292,7 @@ export function run({ Module, data, env, chai })
 
          it('disconnect (before connect)', async () =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             socket.connect();
 
@@ -277,7 +302,7 @@ export function run({ Module, data, env, chai })
 
          it('get bufferedAmount', (done) =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             assert.strictEqual(socket.bufferedAmount, 0);
 
@@ -292,7 +317,7 @@ export function run({ Module, data, env, chai })
 
          it('get connected', (done) =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             assert.isFalse(socket.connected);
 
@@ -307,7 +332,7 @@ export function run({ Module, data, env, chai })
 
          it('get extensions', (done) =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             assert.strictEqual(socket.extensions, '');
 
@@ -322,7 +347,7 @@ export function run({ Module, data, env, chai })
 
          it('get protocol', (done) =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             assert.strictEqual(socket.protocol, '');
 
@@ -337,7 +362,7 @@ export function run({ Module, data, env, chai })
 
          it('get readyState', (done) =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             assert.strictEqual(socket.readyState, 3);
 
@@ -361,21 +386,21 @@ export function run({ Module, data, env, chai })
 
          it('get clientOptions', () =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
             assert.deepEqual(socket.clientOptions, data.setClientOptions(options()));
          });
 
          it('clientOptions', () =>
          {
-            socket = new WSEventbus({ url: 'ws://localhost:8001' });
-            const socket2 = new WSEventbus({ port: 8001 });
+            socket = new WSClient({ url: 'ws://localhost:8001' });
+            const socket2 = new WSClient({ port: 8001 });
 
             assert.deepEqual(socket.clientOptions, socket2.clientOptions);
          });
 
          it('get url', (done) =>
          {
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             assert.strictEqual(socket.url, 'ws://localhost:8001/');
 
@@ -390,14 +415,20 @@ export function run({ Module, data, env, chai })
 
          it('get url (ssl)', () =>
          {
-            socket = new WSEventbus(options({ ssl: true }));
+            socket = new WSClient(options({ ssl: true }));
             assert.strictEqual(socket.url, 'wss://localhost:8001/');
+         });
+
+         it('get url (no clientOptions)', () =>
+         {
+            socket = new WSClient();
+            assert.strictEqual(socket.url, '');
          });
 
          it('get wsOptions', () =>
          {
             const wsOptions = { test: true };
-            socket = new WSEventbus(options(), wsOptions);
+            socket = new WSClient(options(), wsOptions);
 
             // wsOptions is only available on Node / browser does not set it.
             assert.deepEqual(socket.wsOptions, env.isNode ? wsOptions : void 0);
@@ -406,7 +437,7 @@ export function run({ Module, data, env, chai })
          it('reconnect (new path / wsOptions)', async () =>
          {
             const wsOptions = { test: true };
-            socket = new WSEventbus(options());
+            socket = new WSClient(options());
 
             await socket.connect();
 
@@ -422,9 +453,25 @@ export function run({ Module, data, env, chai })
 
          if (env.isNode)
          {
+            it('connect w/ bad wsOptions', async () =>
+            {
+               socket = new WSClient();
+
+               await expect(socket.connect({ clientOptions: options(), wsOptions: false })).to.be.rejectedWith(TypeError,
+                `'wsOptions' is not an object.`);
+            });
+
+            it('bad setOptions (wsOptions)', () =>
+            {
+               socket = new WSClient();
+
+               expect(() => socket.setOptions({ clientOptions: options(), wsOptions: false })).to.throw(TypeError,
+                `'wsOptions' is not an object.`);
+            });
+
             it('wsOptions (empty)', (done) =>
             {
-               socket = new WSEventbus(options({ autoConnect: true }), {});
+               socket = new WSClient(options({ autoConnect: true }), {});
                socket.on('socket:open', () => done());
             });
          }
@@ -434,7 +481,7 @@ export function run({ Module, data, env, chai })
       {
          it('direct callbacks', (done) =>
          {
-            class CustomWSEventbus extends WSEventbus
+            class CustomWSClient extends WSClient
             {
                constructor(clientOptions) { super(clientOptions); }
 
@@ -452,7 +499,7 @@ export function run({ Module, data, env, chai })
                }
             }
 
-            const socket = new CustomWSEventbus(options({ trigger: false }));
+            const socket = new CustomWSClient(options({ trigger: false }));
 
             socket.on('socket:close', () => assert.ok(false));
             socket.on('socket:open', () => assert.ok(false));
