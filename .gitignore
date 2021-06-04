@@ -10,6 +10,6 @@ npm-debug.log
 /env
 /lib
 node_modules
-/test/public/WSEventbus.js
-/test/public/WSEventbus.js.map
+/test/public/WSClient.js
+/test/public/WSClient.js.map
 /test/public/TestsuiteRunner.js
