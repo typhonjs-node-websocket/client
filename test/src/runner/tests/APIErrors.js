@@ -1,8 +1,12 @@
 /**
  * @param {object}                        opts - Test options
+ *
  * @param {import('../../../../types')}   opts.Module - Module to test
+ *
  * @param {object}                        opts.data - Extra test data.
+ *
  * @param {object}                        opts.env - Test environment variables
+ *
  * @param {object}                        opts.chai - Chai
  */
 export function run({ Module, data, env, chai })

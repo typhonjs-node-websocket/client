@@ -1,8 +1,12 @@
 /**
  * @param {object}                        opts - Test options
+ *
  * @param {import('../../../../types')}   opts.Module - Module to test
+ *
  * @param {object}                        opts.data - Extra test data.
+ *
  * @param {object}                        opts.env - Test environment variables
+ *
  * @param {object}                        opts.chai - Chai
  */
 export function run({ Module, data, env, chai })
@@ -274,7 +278,7 @@ export function run({ Module, data, env, chai })
          {
             socket = new WSClient();
 
-            socket.setOptions({ clientOptions: options(), wsOptions: {} })
+            socket.setOptions({ clientOptions: options(), wsOptions: {} });
 
             socket.connect();
             socket.on('socket:open', () => { done(); });

@@ -30,6 +30,7 @@ export default class WSClient extends AbstractWSClient
     * @param {number}            [options.timeout] - Indicates a timeout in ms for connection attempt.
     *
     * @returns {Promise<void|object>} A Promise resolved when connected or rejected with an error / timeout.
+    * @override
     */
    async connect({ clientOptions = void 0, wsOptions = void 0, timeout = void 0 } = {}) // eslint-disable-line no-unused-vars
    {
@@ -76,9 +77,11 @@ export default class WSClient extends AbstractWSClient
     *
     * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
     *                                                  passed to the `ws` WebSocket.
+    *
+    * @override
     */
    setOptions({ clientOptions = void 0, wsOptions = void 0 } = {})   // eslint-disable-line no-unused-vars
    {
-      super.setOptions({ clientOptions, wsOptions: void 0 })
+      super.setOptions({ clientOptions, wsOptions: void 0 });
    }
 }

@@ -173,7 +173,6 @@
  *
  */
 
-// eslint-disable-next-line  jsdoc/valid-types
 /**
  * @typedef {WSOptionsBase & HTTPRequest} WSOptions - Defines the `ws` options for Node WebSocket client. Any other
  * option allowed in http.request() or https.request(). Options given do not have any effect if parsed from the URL
