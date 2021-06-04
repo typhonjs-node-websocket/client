@@ -1,16 +1,16 @@
 {
   "name": "@typhonjs-websocket/eventbus-client",
-  "description": "Provides an eventbus as a WebSocket client for Node and the browser.",
+  "description": "Provides a WebSocket client w/ eventbus for Node and the browser.",
   "version": "0.0.0",
   "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
   "type": "module",
-  "main": "src/node/WSEventbus.js",
-  "module": "src/node/WSEventbus.js",
-  "browser": "dist/browser/WSEventbus.js",
+  "main": "src/node/index.js",
+  "module": "src/node/index.js",
+  "browser": "dist/browser/WSClient.js",
   "exports": {
     ".": {
-      "node": "./src/node/WSEventbus.js",
-      "browser": "./dist/browser/WSEventbus.js"
+      "node": "./src/node/index.js",
+      "browser": "./dist/browser/WSClient.js"
     },
     "./package.json": "./package.json",
     "./types": "./types/index.d.ts"
@@ -19,7 +19,7 @@
     "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
   ],
   "dependencies": {
-    "@typhonjs-plugin/eventbus": "^0.0.5",
+    "@typhonjs-plugin/eventbus": "^0.0.7",
     "ws": "^7"
   },
   "devDependencies": {
@@ -32,6 +32,7 @@
     "rollup": "^2",
     "rollup-plugin-dts": "^3.0.0",
     "rollup-plugin-istanbul": "^3.0.0",
+    "rollup-plugin-sourcemaps": "^0.6.3",
     "rollup-plugin-terser": "^7"
   },
   "engines": {
@@ -59,7 +60,7 @@
     "eslint": "eslint .",
     "posttest-browser": "nyc report --exclude-after-remap=true --reporter=lcov --reporter=text-summary --report-dir=coverage-browser",
     "pretest-browser": "rollup --config rollup.config.browser-test.js",
-    "prepublishOnly": "npm run bundle && npm run test-node && npm run test-browser",
+    "prepublishOnly": "npm run bundle && npm run types && npm run test-node && npm run test-browser",
     "test-browser": "node ./test/src/browser/run.js",
     "test-node": "c8 --exclude-after-remap=true --reporter=lcov --reporter=text-summary mocha -colors \"test/src/node/**/*.test.js\" --timeout 16000",
     "types": "npx -p typescript tsc --project tsconfig.types.json && rollup --config rollup.config.types.js"
