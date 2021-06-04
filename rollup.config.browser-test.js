@@ -15,9 +15,9 @@ const relativeTestBrowserPath = path.relative(`${s_TEST_BROWSER_PATH}`, '.');
 export default () =>
 {
    return [{ // This bundle is for the Istanbul instrumented browser test.
-         input: ['src/browser/WSEventbus.js'],
+         input: ['src/browser/index.js'],
          output: [{
-            file: `${s_TEST_BROWSER_PATH}/WSEventbus.js`,
+            file: `${s_TEST_BROWSER_PATH}/WSClient.js`,
             format: 'es',
             preferConst: true,
             sourcemap: s_SOURCEMAP,

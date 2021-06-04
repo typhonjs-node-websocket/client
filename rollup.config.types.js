@@ -8,7 +8,7 @@ const banner = fs.readFileSync('./lib/typedef.d.ts', 'utf-8');
 
 export default [
    {
-      input: ['./lib/node/WSEventbus.d.ts'],
+      input: ['./lib/node/index.d.ts'],
       output: [{ banner, file: "types/index.d.ts", format: "es" }],
       plugins: [dts()],
    },

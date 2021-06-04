@@ -3,6 +3,7 @@ import path          from 'path';
 
 import { babel }     from '@rollup/plugin-babel';        // Babel is used for private class fields for browser usage.
 import resolve       from '@rollup/plugin-node-resolve';
+import sourcemaps    from 'rollup-plugin-sourcemaps';
 import { terser }    from 'rollup-plugin-terser';        // Terser is used for minification / mangling
 
 // Import config files for Terser and Postcss; refer to respective documentation for more information.
@@ -31,9 +32,9 @@ export default () =>
    }
 
    return [{     // This bundle is for the browser distribution.
-         input: ['src/browser/WSEventbus.js'],
+         input: ['src/browser/index.js'],
          output: [{
-            file: `${s_DIST_PATH_BROWSER}${path.sep}WSEventbus.js`,
+            file: `${s_DIST_PATH_BROWSER}${path.sep}WSClient.js`,
             footer,
             format: 'es',
             plugins: outputPlugins,
@@ -42,8 +43,10 @@ export default () =>
          }],
          plugins: [
             resolve({ browser: true }),
+            sourcemaps(),
             babel({
                babelHelpers: 'bundled',
+               inputSourceMap: false,
                presets: [
                   ['@babel/preset-env', {
                      bugfixes: true,
