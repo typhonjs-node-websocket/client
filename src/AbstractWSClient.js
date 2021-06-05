@@ -95,6 +95,9 @@ export default class AbstractWSClient extends Eventbus
       {
          setTimeout(this.connect.bind(this), 0);
       }
+
+      // Provide a callback to initialize any event listeners in child classes.
+      this.onInitialize();
    }
 
    /**
@@ -365,6 +368,11 @@ export default class AbstractWSClient extends Eventbus
     * @returns {WSOptions}
     */
    get wsOptions() { return this.#wsOptions; }
+
+   /**
+    * Invoked after the initial setup in the constructor.
+    */
+   onInitialize() {}
 
    /**
     * 'onclose' direct method callback.
