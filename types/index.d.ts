@@ -490,6 +490,18 @@ declare class AbstractWSClient {
      */
     onInitialize(): void;
     /**
+     * Invoked when clientOptions is set. Allows child classes to manipulate clientOptions.
+     *
+     * @param {ClientOptions}  clientOptions - The newly set clientOptions.
+     */
+    onSetClientOptions(clientOptions: ClientOptions): void;
+    /**
+     * Invoked when wsOptions is set. Allows child classes to manipulate wsOptions.
+     *
+     * @param {WSOptions}   wsOptions - The newly set wsOptions.
+     */
+    onSetWSOptions(wsOptions: WSOptions): void;
+    /**
      * 'onclose' direct method callback.
      */
     onSocketClose(): void;
