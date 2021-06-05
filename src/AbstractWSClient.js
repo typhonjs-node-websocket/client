@@ -72,6 +72,7 @@ export default class AbstractWSClient extends Eventbus
       if (clientOptions !== void 0)
       {
          this.#clientOptions = setClientOptions(clientOptions);
+         this.onSetClientOptions(this.#clientOptions);
       }
 
       if (wsOptions !== void 0 && typeof wsOptions !== 'object')
@@ -82,6 +83,7 @@ export default class AbstractWSClient extends Eventbus
       if (wsOptions !== void 0)
       {
          this.#wsOptions = wsOptions;
+         this.onSetWSOptions(this.#wsOptions);
       }
 
       this.#queue = new Queue((message) =>
@@ -130,6 +132,7 @@ export default class AbstractWSClient extends Eventbus
       if (clientOptions !== void 0)
       {
          this.#clientOptions = setClientOptions(clientOptions);
+         this.onSetClientOptions(this.#clientOptions);
       }
 
       if (wsOptions !== void 0 && typeof wsOptions !== 'object')
@@ -140,6 +143,7 @@ export default class AbstractWSClient extends Eventbus
       if (wsOptions !== void 0)
       {
          this.#wsOptions = wsOptions;
+         this.onSetWSOptions(this.#wsOptions);
       }
 
       if (typeof this.#clientOptions !== 'object')
@@ -375,6 +379,20 @@ export default class AbstractWSClient extends Eventbus
    onInitialize() {}
 
    /**
+    * Invoked when clientOptions is set. Allows child classes to manipulate clientOptions.
+    *
+    * @param {ClientOptions}  clientOptions - The newly set clientOptions.
+    */
+   onSetClientOptions(clientOptions) {}
+
+   /**
+    * Invoked when wsOptions is set. Allows child classes to manipulate wsOptions.
+    *
+    * @param {WSOptions}   wsOptions - The newly set wsOptions.
+    */
+   onSetWSOptions(wsOptions) {}
+
+   /**
     * 'onclose' direct method callback.
     */
    onSocketClose() {}
@@ -428,6 +446,7 @@ export default class AbstractWSClient extends Eventbus
       if (clientOptions !== void 0)
       {
          this.#clientOptions = setClientOptions(clientOptions);
+         this.onSetClientOptions(this.#clientOptions);
       }
 
       if (wsOptions !== void 0 && typeof wsOptions !== 'object')
@@ -438,6 +457,7 @@ export default class AbstractWSClient extends Eventbus
       if (wsOptions !== void 0)
       {
          this.#wsOptions = wsOptions;
+         this.onSetWSOptions(this.#wsOptions);
       }
 
       await this.disconnect({ code, reason });
@@ -497,6 +517,7 @@ export default class AbstractWSClient extends Eventbus
       if (clientOptions !== void 0)
       {
          this.#clientOptions = setClientOptions(clientOptions);
+         this.onSetClientOptions(this.#clientOptions);
       }
 
       if (wsOptions !== void 0 && typeof wsOptions !== 'object')
@@ -507,6 +528,7 @@ export default class AbstractWSClient extends Eventbus
       if (wsOptions !== void 0)
       {
          this.#wsOptions = wsOptions;
+         this.onSetWSOptions(this.#wsOptions);
       }
    }
 }
