@@ -2,6 +2,7 @@ import path       from 'path';
 
 import { babel }  from '@rollup/plugin-babel';        // Babel is used for private class fields for browser usage.
 import resolve    from '@rollup/plugin-node-resolve';
+import sourcemaps from 'rollup-plugin-sourcemaps';
 import istanbul   from 'rollup-plugin-istanbul';      // Adds Istanbul instrumentation.
 
 // The test browser distribution is bundled to `./test/public`.
@@ -25,8 +26,10 @@ export default () =>
          }],
          plugins: [
             resolve({ browser: true }),
+            sourcemaps(),
             babel({
                babelHelpers: 'bundled',
+               inputSourceMap: false,
                presets: [
                   ['@babel/preset-env', {
                      bugfixes: true,
