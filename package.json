@@ -1,5 +1,5 @@
 {
-  "name": "@typhonjs-websocket/eventbus-client",
+  "name": "@typhonjs-websocket/client",
   "description": "Provides a WebSocket client w/ eventbus for Node and the browser.",
   "version": "0.0.0",
   "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
@@ -45,7 +45,7 @@
     "/src",
     "/types"
   ],
-  "homepage": "https://github.com/typhonjs-node-plugin/eventbus-ws-client#readme",
+  "homepage": "https://github.com/typhonjs-node-websocket/client#readme",
   "keywords": [
     "typhonjs",
     "websocket",
@@ -53,8 +53,8 @@
     "client"
   ],
   "license": "MPL-2.0",
-  "repository": "github:typhonjs-node-plugin/eventbus-ws-client",
-  "bugs": "https://github.com/typhonjs-node-plugin/eventbus-ws-client/issues",
+  "repository": "github:typhonjs-node-websocket/client",
+  "bugs": "https://github.com/typhonjs-node-websocket/client/issues",
   "scripts": {
     "bundle": "rollup --config",
     "eslint": "eslint .",
