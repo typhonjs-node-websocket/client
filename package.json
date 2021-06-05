@@ -19,7 +19,7 @@
     "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
   ],
   "dependencies": {
-    "@typhonjs-plugin/eventbus": "^0.0.7",
+    "@typhonjs-plugin/eventbus": "^0.0.8",
     "ws": "^7"
   },
   "devDependencies": {
