@@ -486,6 +486,10 @@ declare class AbstractWSClient {
      */
     get wsOptions(): WSOptions;
     /**
+     * Invoked after the initial setup in the constructor.
+     */
+    onInitialize(): void;
+    /**
      * 'onclose' direct method callback.
      */
     onSocketClose(): void;
@@ -586,4 +590,5 @@ declare class WSClient extends AbstractWSClient {
     #private;
 }
 
-export { Queue, WSClient };
+export default WSClient;
+export { Queue };
