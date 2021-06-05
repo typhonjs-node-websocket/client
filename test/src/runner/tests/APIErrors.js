@@ -13,7 +13,7 @@ export function run({ Module, data, env, chai })
 {
    const { expect } = chai;
 
-   const { WSClient } = Module;
+   const WSClient = Module.default;
 
    describe(`API Errors (${data.scopedName}):`, () =>
    {

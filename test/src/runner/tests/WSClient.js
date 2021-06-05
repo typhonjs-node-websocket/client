@@ -13,7 +13,7 @@ export function run({ Module, data, env, chai })
 {
    const { assert, expect } = chai;
 
-   const { WSClient } = Module;
+   const WSClient = Module.default;
 
    const options = (config = {}) => Object.assign({ port: 8001 }, config);
 
