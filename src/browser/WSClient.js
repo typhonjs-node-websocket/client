@@ -8,8 +8,11 @@ export default class WSClient extends AbstractWSClient
 {
    /**
     * @param {NewClientOptions}  [clientOptions] - Defines the options for a WebSocket client.
+    *
+    * @param {WSOptions}         [wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed
+    *                                          to the `ws` WebSocket. Ignored for the browser.
     */
-   constructor(clientOptions = void 0)
+   constructor(clientOptions = void 0, wsOptions = void 0) // eslint-disable-line no-unused-vars
    {
       super(WebSocket, clientOptions); // eslint-disable-line no-undef
    }
