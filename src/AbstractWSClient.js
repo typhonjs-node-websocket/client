@@ -40,6 +40,12 @@ export default class AbstractWSClient extends Eventbus
    #socket;
 
    /**
+    * Provides a unique ID for messages that is incremented in `get uniqueID`.
+    * @type {number}
+    */
+   #uniqueID = 0;
+
+   /**
     * @type {Function|WebSocket}
     *
     * @private
@@ -340,6 +346,13 @@ export default class AbstractWSClient extends Eventbus
     * @returns {string} Server sub-protocol.
     */
    get protocol() { return this.#socket ? this.#socket.protocol : ''; }
+
+   /**
+    * Returns a unique ID for messaging. The ID is incremented by 1 everytime this method is invoked.
+    *
+    * @returns {number} A unique ID for messaging.
+    */
+   get uniqueID() { return this.#uniqueID++; }
 
    /**
     * @returns {Queue} The message queue.

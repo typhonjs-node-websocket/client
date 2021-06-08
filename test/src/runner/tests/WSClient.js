@@ -402,6 +402,15 @@ export function run({ Module, data, env, chai })
             assert.deepEqual(socket.clientOptions, socket2.clientOptions);
          });
 
+         it('get uniqueID', () =>
+         {
+            socket = new WSClient(options());
+
+            assert.strictEqual(socket.uniqueID, 0);
+            assert.strictEqual(socket.uniqueID, 1);
+            assert.strictEqual(socket.uniqueID, 2);
+         });
+
          it('get url', (done) =>
          {
             socket = new WSClient(options());
