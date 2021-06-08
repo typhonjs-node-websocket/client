@@ -462,6 +462,12 @@ declare class AbstractWSClient {
      */
     get protocol(): string;
     /**
+     * Returns a unique ID for messaging. The ID is incremented by 1 everytime this method is invoked.
+     *
+     * @returns {number} A unique ID for messaging.
+     */
+    get uniqueID(): number;
+    /**
      * @returns {Queue} The message queue.
      */
     get queue(): Queue;
