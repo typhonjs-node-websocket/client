@@ -18,7 +18,7 @@ export default () =>
    return [{ // This bundle is for the Istanbul instrumented browser test.
          input: ['src/browser/index.js'],
          output: [{
-            file: `${s_TEST_BROWSER_PATH}/WebSocket.js`,
+            file: `${s_TEST_BROWSER_PATH}/WSCore.js`,
             format: 'es',
             preferConst: true,
             sourcemap: s_SOURCEMAP,

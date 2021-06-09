@@ -35,7 +35,7 @@ export default () =>
    return [{     // This bundle is for the browser distribution.
          input: ['src/browser/index.js'],
          output: [{
-            file: `${s_DIST_PATH_BROWSER}${path.sep}WebSocket.js`,
+            file: `${s_DIST_PATH_BROWSER}${path.sep}WSCore.js`,
             footer,
             format: 'es',
             plugins: outputPlugins,

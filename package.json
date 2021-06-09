@@ -1,16 +1,16 @@
 {
   "name": "@typhonjs-websocket/client",
-  "description": "Provides a WebSocket client w/ eventbus for Node and the browser.",
+  "description": "Provides a WebSocket client & server w/ eventbus for Node and the browser.",
   "version": "0.0.0",
   "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
   "type": "module",
   "main": "src/node/index.js",
   "module": "src/node/index.js",
-  "browser": "dist/browser/WebSocket.js",
+  "browser": "dist/browser/WSCore.js",
   "exports": {
     ".": {
       "node": "./src/node/index.js",
-      "browser": "./dist/browser/WebSocket.js"
+      "browser": "./dist/browser/WSCore.js"
     },
     "./package.json": "./package.json",
     "./types": "./types/index.d.ts"
