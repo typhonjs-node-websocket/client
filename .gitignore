@@ -10,6 +10,6 @@ npm-debug.log
 /env
 /lib
 node_modules
-/test/public/WSClient.js
-/test/public/WSClient.js.map
+/test/public/WebSocket.js
+/test/public/WebSocket.js.map
 /test/public/TestsuiteRunner.js
