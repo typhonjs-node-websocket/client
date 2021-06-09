@@ -1,4 +1,66 @@
 /**
+ * - Defines the options for a WebSocket server by individual parts.
+ */
+type NewServerOptions = {
+    /**
+     * - port [0-65535].
+     */
+    port: number;
+    /**
+     * - host name.
+     */
+    host?: string;
+    /**
+     * - Indicates if an SSL connection is requested.
+     */
+    ssl?: boolean;
+    /**
+     * - An instance of an object which conforms to JSON for object
+     *    serialization.
+     */
+    serializer?: object;
+    /**
+     * - Trigger events on the eventbus for socket callbacks.
+     */
+    trigger?: boolean;
+};
+/**
+ * - Defines the options for a WebSocket server.
+ */
+type ServerOptions = {
+    /**
+     * - port [0-65535].
+     */
+    port: number;
+    /**
+     * - host name.
+     */
+    host: string;
+    /**
+     * - Indicates if an SSL connection is requested.
+     */
+    ssl: boolean;
+    /**
+     * - An instance of an object which conforms to JSON for object
+     *   serialization.
+     */
+    serializer: object;
+    /**
+     * - Trigger events on the eventbus for socket callbacks.
+     */
+    trigger: boolean;
+};
+/**
+ * - Defines the `ws` options for Node WebSocket server.
+ */
+type WSServerOptions = {
+    /**
+     * - A function which can be used to handle the WebSocket sub-protocols.
+     */
+    handleProtocols?: Function;
+};
+
+/**
  * - Defines the options for a WebSocket client by individual parts.
  */
 type ClientOptionsParts = {
@@ -7,7 +69,7 @@ type ClientOptionsParts = {
      */
     port: number;
     /**
-     * - host name / IP address.
+     * - Host name.
      */
     host?: string;
     /**
@@ -115,7 +177,7 @@ type ClientOptions = {
      */
     port: number;
     /**
-     * - host name / IP address.
+     * - Host name.
      */
     host: string;
     /**
@@ -171,7 +233,7 @@ type NewClientOptions = ClientOptionsURL | ClientOptionsParts;
 /**
  * - Defines the base `ws` options for Node WebSocket client.
  */
-type WSOptionsBase = {
+type WSClientOptionsBase = {
     /**
      * - Whether or not to follow redirects.
      */
@@ -310,11 +372,11 @@ type HTTPRequest = {
     signal?: AbortSignal;
 };
 /**
- * - Defines the `ws` options for Node WebSocket client. Any other
- * option allowed in http.request() or https.request(). Options given do not have any effect if parsed from the URL
- * given with the address parameter.
+ * - Defines the `ws` options for Node WebSocket
+ * client. Any other option allowed in http.request() or https.request(). Options given do not have any effect if parsed
+ * from the URL given with the address parameter.
  */
-type WSOptions = WSOptionsBase & HTTPRequest;
+type WSClientOptions = WSClientOptionsBase & HTTPRequest;
 
 /**
  * Provides a single consumer queue.
@@ -381,10 +443,10 @@ declare class AbstractWSClient {
      *
      * @param {NewClientOptions}     [clientOptions] - Defines the options for a WebSocket client.
      *
-     * @param {WSOptions}            [wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+     * @param {WSClientOptions}      [wsOptions] - On Node `ws` is the WebSocket implementation. This object is
      *                                             passed to the `ws` WebSocket.
      */
-    constructor(WebSocketCtor: Function | WebSocket, clientOptions?: NewClientOptions, wsOptions?: WSOptions);
+    constructor(WebSocketCtor: Function | WebSocket, clientOptions?: NewClientOptions, wsOptions?: WSClientOptions);
     /**
      * Connects the socket with potentially new client options.
      *
@@ -395,7 +457,7 @@ declare class AbstractWSClient {
      *
      * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
      *
-     * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+     * @param {WSClientOptions}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
      *                                                  passed to the `ws` WebSocket.
      *
      * @param {number}            [options.timeout] - Indicates a timeout in ms for connection attempt.
@@ -404,7 +466,7 @@ declare class AbstractWSClient {
      */
     connect({ clientOptions, wsOptions, timeout }?: {
         clientOptions?: NewClientOptions;
-        wsOptions?: WSOptions;
+        wsOptions?: WSClientOptions;
         timeout?: number;
     }): Promise<void | object>;
     /**
@@ -488,9 +550,9 @@ declare class AbstractWSClient {
     /**
      * Any 'ws' options set for Node WebSocket implementation.
      *
-     * @returns {WSOptions}
+     * @returns {WSClientOptions}
      */
-    get wsOptions(): WSOptions;
+    get wsOptions(): WSClientOptions;
     /**
      * Invoked after the initial setup in the constructor.
      */
@@ -504,9 +566,9 @@ declare class AbstractWSClient {
     /**
      * Invoked when wsOptions is set. Allows child classes to manipulate wsOptions.
      *
-     * @param {WSOptions}   wsOptions - The newly set wsOptions.
+     * @param {WSClientOptions}   wsOptions - The newly set wsOptions.
      */
-    onSetWSOptions(wsOptions: WSOptions): void;
+    onSetWSOptions(wsOptions: WSClientOptions): void;
     /**
      * 'onclose' direct method callback.
      */
@@ -534,7 +596,7 @@ declare class AbstractWSClient {
      *
      * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
      *
-     * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+     * @param {WSClientOptions}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
      *                                                  passed to the `ws` WebSocket.
      *
      * @param {number}            [options.code=1000] - A numeric value indicating the status code explaining why the
@@ -554,7 +616,7 @@ declare class AbstractWSClient {
      */
     reconnect({ clientOptions, wsOptions, code, reason, timeout }?: {
         clientOptions?: NewClientOptions;
-        wsOptions?: WSOptions;
+        wsOptions?: WSClientOptions;
         code?: number;
         reason?: string;
         timeout?: number;
@@ -582,12 +644,12 @@ declare class AbstractWSClient {
      *
      * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
      *
-     * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+     * @param {WSClientOptions}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
      *                                                  passed to the `ws` WebSocket.
      */
     setOptions({ clientOptions, wsOptions }?: {
         clientOptions?: NewClientOptions;
-        wsOptions?: WSOptions;
+        wsOptions?: WSClientOptions;
     }): void;
     #private;
 }
@@ -599,14 +661,68 @@ declare class WSClient extends AbstractWSClient {
     /**
      * @param {NewClientOptions}  [clientOptions] - Defines the options for a WebSocket client.
      *
-     * @param {WSOptions}         [wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed to
+     * @param {WSClientOptions}   [wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed to
      *                                          the `ws` WebSocket as options.
      *
      * @see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options
      */
-    constructor(clientOptions?: NewClientOptions, wsOptions?: WSOptions);
+    constructor(clientOptions?: NewClientOptions, wsOptions?: WSClientOptions);
     #private;
 }
 
-export default WSClient;
-export { Queue };
+declare class WSServer {
+    /**
+     * Create a WebSocket server.
+     *
+     * @param {NewServerOptions}  [serverOptions] - Defines the options for a WebSocket server.
+     *
+     * @param {WSServerOptions}   [wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+     *                                          passed to the `ws` WebSocket.Server.
+     */
+    constructor(serverOptions?: NewServerOptions, wsOptions?: WSServerOptions);
+    /**
+     * Returns a unique ID for messaging. The ID is incremented by 1 everytime this method is invoked.
+     *
+     * @returns {number} A unique ID for messaging.
+     */
+    get uniqueID(): number;
+    get wss(): any;
+    onListening(wss: any): void;
+    /**
+     * Invoked when serverOptions is set. Allows child classes to manipulate serverOptions.
+     *
+     * @param {ServerOptions}  serverOptions - The newly set serverOptions.
+     */
+    onSetServerOptions(serverOptions: ServerOptions): void;
+    /**
+     * Invoked when wsOptions is set. Allows child classes to manipulate wsOptions.
+     *
+     * @param {WSServerOptions}   wsOptions - The newly set wsOptions.
+     */
+    onSetWSOptions(wsOptions: WSServerOptions): void;
+    /**
+     * Shutdown the server.
+     *
+     * @returns {Promise<void>} A Promise that resolves when server is shutdown.
+     */
+    shutdown(): Promise<void>;
+    /**
+     * Start the server.
+     *
+     * @param {object}            options - Optional parameters.
+     *
+     * @param {NewServerOptions}  [options.serverOptions] - Defines the options for a WebSocket server.
+     *
+     * @param {WSServerOptions}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+     *                                                  passed to the `ws` WebSocket.Server as options.
+     *
+     * @returns {Promise<void|object>} A Promise resolved when started or rejected with an error / timeout.
+     */
+    start({ serverOptions, wsOptions }?: {
+        serverOptions?: NewServerOptions;
+        wsOptions?: WSServerOptions;
+    }): Promise<void | object>;
+    #private;
+}
+
+export { Queue, WSClient, WSServer };
