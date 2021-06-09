@@ -55,7 +55,7 @@ export default class AbstractWSClient extends Eventbus
    /**
     * Some WebSocket implementations may take an implementation specific options object as a third parameter.
     *
-    * @type {WSOptions}
+    * @type {WSClientOptions}
     */
    #wsOptions;
 
@@ -66,7 +66,7 @@ export default class AbstractWSClient extends Eventbus
     *
     * @param {NewClientOptions}     [clientOptions] - Defines the options for a WebSocket client.
     *
-    * @param {WSOptions}            [wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+    * @param {WSClientOptions}      [wsOptions] - On Node `ws` is the WebSocket implementation. This object is
     *                                             passed to the `ws` WebSocket.
     */
    constructor(WebSocketCtor, clientOptions = void 0, wsOptions = void 0)
@@ -118,7 +118,7 @@ export default class AbstractWSClient extends Eventbus
     *
     * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
     *
-    * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+    * @param {WSClientOptions}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
     *                                                  passed to the `ws` WebSocket.
     *
     * @param {number}            [options.timeout] - Indicates a timeout in ms for connection attempt.
@@ -382,7 +382,7 @@ export default class AbstractWSClient extends Eventbus
    /**
     * Any 'ws' options set for Node WebSocket implementation.
     *
-    * @returns {WSOptions}
+    * @returns {WSClientOptions}
     */
    get wsOptions() { return this.#wsOptions; }
 
@@ -401,7 +401,7 @@ export default class AbstractWSClient extends Eventbus
    /**
     * Invoked when wsOptions is set. Allows child classes to manipulate wsOptions.
     *
-    * @param {WSOptions}   wsOptions - The newly set wsOptions.
+    * @param {WSClientOptions}   wsOptions - The newly set wsOptions.
     */
    onSetWSOptions(wsOptions) {}
 
@@ -436,7 +436,7 @@ export default class AbstractWSClient extends Eventbus
     *
     * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
     *
-    * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+    * @param {WSClientOptions}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
     *                                                  passed to the `ws` WebSocket.
     *
     * @param {number}            [options.code=1000] - A numeric value indicating the status code explaining why the
@@ -522,7 +522,7 @@ export default class AbstractWSClient extends Eventbus
     *
     * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
     *
-    * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+    * @param {WSClientOptions}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
     *                                                  passed to the `ws` WebSocket.
     */
    setOptions({ clientOptions = void 0, wsOptions = void 0 } = {})

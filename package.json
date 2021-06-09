@@ -6,11 +6,11 @@
   "type": "module",
   "main": "src/node/index.js",
   "module": "src/node/index.js",
-  "browser": "dist/browser/WSClient.js",
+  "browser": "dist/browser/WebSocket.js",
   "exports": {
     ".": {
       "node": "./src/node/index.js",
-      "browser": "./dist/browser/WSClient.js"
+      "browser": "./dist/browser/WebSocket.js"
     },
     "./package.json": "./package.json",
     "./types": "./types/index.d.ts"

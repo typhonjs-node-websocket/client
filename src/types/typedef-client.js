@@ -3,7 +3,7 @@
  *
  * @property {number}            port - port [0-65535].
  *
- * @property {string}            [host=localhost] - host name / IP address.
+ * @property {string}            [host=localhost] - Host name.
  *
  * @property {boolean}           [ssl=false] - Indicates if an SSL connection is requested.
  *
@@ -61,7 +61,7 @@
  *
  * @property {number}            port - port [0-65535].
  *
- * @property {string}            host - host name / IP address.
+ * @property {string}            host - Host name.
  *
  * @property {boolean}           ssl - Indicates if an SSL connection is requested.
  *
@@ -92,7 +92,7 @@
  */
 
 /**
- * @typedef {object} WSOptionsBase - Defines the base `ws` options for Node WebSocket client.
+ * @typedef {object} WSClientOptionsBase - Defines the base `ws` options for Node WebSocket client.
  *
  * @property {boolean} [followRedirects=false] - Whether or not to follow redirects.
  *
@@ -174,7 +174,7 @@
  */
 
 /**
- * @typedef {WSOptionsBase & HTTPRequest} WSOptions - Defines the `ws` options for Node WebSocket client. Any other
- * option allowed in http.request() or https.request(). Options given do not have any effect if parsed from the URL
- * given with the address parameter.
+ * @typedef {WSClientOptionsBase & HTTPRequest} WSClientOptions - Defines the `ws` options for Node WebSocket
+ * client. Any other option allowed in http.request() or https.request(). Options given do not have any effect if parsed
+ * from the URL given with the address parameter.
  */

@@ -9,7 +9,7 @@ import WSTestServer  from '../common/WSTestServer.js';
  */
 async function main()
 {
-   const wsTestServer = new WSTestServer();
+   const wsTestServer = new WSTestServer({ port: 8001 });
    await wsTestServer.start();
 
    await TestRunner.runServerAndTestSuite({

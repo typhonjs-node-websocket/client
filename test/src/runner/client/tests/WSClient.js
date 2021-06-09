@@ -1,19 +1,19 @@
 /**
- * @param {object}                        opts - Test options
+ * @param {object}                           opts - Test options
  *
- * @param {import('../../../../types')}   opts.Module - Module to test
+ * @param {import('../../../../../types')}   opts.Module - Module to test
  *
- * @param {object}                        opts.data - Extra test data.
+ * @param {object}                           opts.data - Extra test data.
  *
- * @param {object}                        opts.env - Test environment variables
+ * @param {object}                           opts.env - Test environment variables
  *
- * @param {object}                        opts.chai - Chai
+ * @param {object}                           opts.chai - Chai
  */
 export function run({ Module, data, env, chai })
 {
    const { assert, expect } = chai;
 
-   const WSClient = Module.default;
+   const { WSClient } = Module;
 
    const options = (config = {}) => Object.assign({ port: 8001 }, config);
 

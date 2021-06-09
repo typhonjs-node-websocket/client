@@ -1,19 +1,19 @@
 /**
- * @param {object}                        opts - Test options
+ * @param {object}                           opts - Test options
  *
- * @param {import('../../../../types')}   opts.Module - Module to test
+ * @param {import('../../../../../types')}   opts.Module - Module to test
  *
- * @param {object}                        opts.data - Extra test data.
+ * @param {object}                           opts.data - Extra test data.
  *
- * @param {object}                        opts.env - Test environment variables
+ * @param {object}                           opts.env - Test environment variables
  *
- * @param {object}                        opts.chai - Chai
+ * @param {object}                           opts.chai - Chai
  */
 export function run({ Module, data, env, chai })
 {
    const { expect } = chai;
 
-   const WSClient = Module.default;
+   const { WSClient } = Module;
 
    describe(`API Errors (${data.scopedName}):`, () =>
    {
@@ -196,6 +196,18 @@ export function run({ Module, data, env, chai })
              `'clientOptions.trigger' is not a boolean.`);
          });
       });
+
+      if (env.isBrowser)
+      {
+         describe('WSServer (browser)', () =>
+         {
+            it(`'WSServer' throws.`, () =>
+            {
+               const { WSServer } = Module;
+               expect(() => new WSServer()).to.throw(ReferenceError, `'WSServer' is only available on Node.`);
+            });
+         });
+      }
 
       if (env.isNode)
       {

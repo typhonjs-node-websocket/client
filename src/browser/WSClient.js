@@ -9,7 +9,7 @@ export default class WSClient extends AbstractWSClient
    /**
     * @param {NewClientOptions}  [clientOptions] - Defines the options for a WebSocket client.
     *
-    * @param {WSOptions}         [wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed
+    * @param {WSClientOptions}   [wsOptions] - On Node `ws` is the WebSocket implementation. This object is passed
     *                                          to the `ws` WebSocket. Ignored for the browser.
     */
    constructor(clientOptions = void 0, wsOptions = void 0) // eslint-disable-line no-unused-vars
@@ -27,7 +27,7 @@ export default class WSClient extends AbstractWSClient
     *
     * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
     *
-    * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+    * @param {WSClientOptions}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
     *                                                  passed to the `ws` WebSocket.
     *
     * @param {number}            [options.timeout] - Indicates a timeout in ms for connection attempt.
@@ -47,7 +47,7 @@ export default class WSClient extends AbstractWSClient
     *
     * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
     *
-    * @param {WSOptions}         [options.wsOptions] - Unused options for browser WebSocket.
+    * @param {WSClientOptions}   [options.wsOptions] - Unused options for browser WebSocket.
     *
     * @param {number}            [options.code=1000] - A numeric value indicating the status code explaining why the
     *                            connection is being closed. If this parameter is not specified, a default value of 1000
@@ -78,7 +78,7 @@ export default class WSClient extends AbstractWSClient
     *
     * @param {NewClientOptions}  [options.clientOptions] - Defines the options for a WebSocket client.
     *
-    * @param {WSOptions}         [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
+    * @param {WSClientOptions}   [options.wsOptions] - On Node `ws` is the WebSocket implementation. This object is
     *                                                  passed to the `ws` WebSocket.
     *
     * @override
