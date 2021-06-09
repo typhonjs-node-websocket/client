@@ -9,8 +9,9 @@ import { terser }    from 'rollup-plugin-terser';        // Terser is used for m
 // Import config files for Terser and Postcss; refer to respective documentation for more information.
 import terserConfig  from './terser.config';
 
-// Add local typedefs.js file to the end of the bundles as a footer.
-const footer = fs.readFileSync('./src/typedef.js', 'utf-8');
+// Add local typedefs file to the end of the bundles as a footer.
+let footer = fs.readFileSync('./src/types/typedef-server.js', 'utf-8');
+footer += `\n${fs.readFileSync('./src/types/typedef-client.js', 'utf-8')}`;
 
 // The deploy path for the distribution for browser & Node.
 const s_DIST_PATH_BROWSER = './dist/browser';
@@ -34,7 +35,7 @@ export default () =>
    return [{     // This bundle is for the browser distribution.
          input: ['src/browser/index.js'],
          output: [{
-            file: `${s_DIST_PATH_BROWSER}${path.sep}WSClient.js`,
+            file: `${s_DIST_PATH_BROWSER}${path.sep}WebSocket.js`,
             footer,
             format: 'es',
             plugins: outputPlugins,
